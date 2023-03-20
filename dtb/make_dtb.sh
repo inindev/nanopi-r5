@@ -7,7 +7,9 @@ main() {
     local rkpath="linux-$lv/arch/arm64/boot/dts/rockchip"
 
     if [ '_clean' = "_$1" ]; then
-        rm -f *.dt*
+        rm -f *.dtb
+        rm -f *-top.dts
+        rm -f *.dtsi
         rm -rf "linux-$lv"
         echo '\nclean complete\n'
         exit 0
@@ -21,11 +23,11 @@ main() {
 
     if [ ! -d "linux-$lv" ]; then
         tar "xavf" "linux-$lv.tar.xz" "linux-$lv/include/dt-bindings" "linux-$lv/include/uapi" "$rkpath"
-        cp rk3568-nanopi-r5s.dts "$rkpath"
+        cp rk3568-nanopi-r5.dts "$rkpath"
     fi
 
     if [ '_links' = "_$1" ]; then
-#        ln -sf "$rkpath/rk3568-nanopi-r5s.dts"
+#        ln -sf "$rkpath/rk3568-nanopi-r5.dts"
         ln -sf "$rkpath/rk3568.dtsi"
         ln -sf "$rkpath/rk356x.dtsi"
         echo '\nlinks created\n'
@@ -33,7 +35,7 @@ main() {
     fi
 
     # build
-    dt=rk3568-nanopi-r5s
+    dt=rk3568-nanopi-r5
     gcc -I "linux-$lv/include" -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp -o ${dt}-top.dts "$rkpath/${dt}.dts"
     dtc -@ -I dts -O dtb -o ${dt}.dtb ${dt}-top.dts
 

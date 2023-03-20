@@ -15,8 +15,8 @@
 #include "rk3568.dtsi"
 
 / {
-	model = "FriendlyElec NanoPi R5S";
-	compatible = "friendlyarm,nanopi-r5s", "rockchip,rk3568";
+	model = "FriendlyElec NanoPi R5";
+	compatible = "friendlyarm,nanopi-r5c", "friendlyarm,nanopi-r5s", "rockchip,rk3568";
 
 	aliases {
 		ethernet0 = &gmac0;
