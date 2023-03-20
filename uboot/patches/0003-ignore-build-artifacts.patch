@@ -1,0 +1,43 @@
+From 98b6bbe13cbd5e3f9e16977bd53021fa4bf64a5a Mon Sep 17 00:00:00 2001
+From: John Clark <inindev@gmail.com>
+Date: Tue, 7 Mar 2023 01:47:26 +0000
+Subject: [PATCH 3/3] ignore build artifacts
+
+Signed-off-by: John Clark <inindev@gmail.com>
+---
+ .gitignore               | 3 ++-
+ drivers/video/.gitignore | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/video/.gitignore
+
+diff --git a/.gitignore b/.gitignore
+index eb769f144c..2ffd5fd3bf 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -34,7 +34,7 @@
+ *.tab.[ch]
+ 
+ # Build tree
+-/build-*
++/build*
+ 
+ #
+ # Top-level generic files
+@@ -43,6 +43,7 @@ fit-dtb.blob*
+ /MLO*
+ /SPL*
+ /System.map
++/simple-bin.map
+ /u-boot*
+ /boards.cfg
+ /*.log
+diff --git a/drivers/video/.gitignore b/drivers/video/.gitignore
+new file mode 100644
+index 0000000000..86ec950f64
+--- /dev/null
++++ b/drivers/video/.gitignore
+@@ -0,0 +1 @@
++*.S
+-- 
+2.39.2
+
