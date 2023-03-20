@@ -126,7 +126,8 @@ main() {
     sed -i '/alias.l.=/s/^#*\s*//' "$mountpt/root/.bashrc"
 
     # motd (off by default)
-    is_param 'motd' $@ && [ -f '../etc/motd' ] && cp -f '../etc/motd' "$mountpt/etc"
+    is_param 'motdc' $@ && [ -f '../etc/motd-r5c' ] && cp -f '../etc/motd-r5c' "$mountpt/etc/motd"
+    is_param 'motds' $@ && [ -f '../etc/motd-r5s' ] && cp -f '../etc/motd-r5s' "$mountpt/etc/motd"
 
     # setup /boot
     echo "$(script_boot_txt $disable_ipv6)\n" > "$mountpt/boot/boot.txt"
