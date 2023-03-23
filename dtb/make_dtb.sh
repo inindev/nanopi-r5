@@ -30,6 +30,7 @@ main() {
 #        ln -sf "$rkpath/rk3568-nanopi-r5.dts"
         ln -sf "$rkpath/rk3568.dtsi"
         ln -sf "$rkpath/rk356x.dtsi"
+        ln -sf "$rkpath/rk3568-pinctrl.dtsi"
         echo '\nlinks created\n'
         exit 0
     fi
