@@ -2,9 +2,14 @@
 
 set -e
 
+# script exit codes:
+#   5: invalid file hash
+
 main() {
     local utag='v2023.01'
-    local bl31_file='rkbin/rk3568_bl31_v1.28.elf'
+    local atf_url='https://github.com/inindev/atf/releases/download/lts-v2.8.1-rk3568/rk3568_bl31_inindev.elf'
+    local atf_sha='c6a178789378800d1878bdc813d41b41b92874058eecd4e0a7b2050f66fff989'
+    local atf_file=$(basename $atf_url)
     local ddrl_file='rkbin/rk3568_ddr_1560MHz_v1.15.bin'
 
     if [ '_clean' = "_$1" ]; then
@@ -26,9 +31,22 @@ main() {
 
     if ! git -C u-boot branch | grep -q $utag; then
         git -C u-boot checkout -b $utag $utag
-        apply_patches
+
+        cherry_pick
+
+        for patch in patches/*.patch; do
+            git -C u-boot am "../$patch"
+        done
     elif [ "_$utag" != "_$(git -C u-boot branch | sed -n -e 's/^\* \(.*\)/\1/p')" ]; then
         git -C u-boot checkout $utag
+    fi
+
+    if [ ! -f u-boot/$atf_file ]; then
+        wget -cP u-boot $atf_url
+        if [ "$atf_sha" != $(sha256sum u-boot/$atf_file | cut -c1-64) ]; then
+            echo "invalid hash for atf binary: u-boot/$atf_file"
+            exit 5
+        fi
     fi
 
     # outputs: idbloader.img & u-boot.itb
@@ -36,7 +54,7 @@ main() {
         make -C u-boot distclean
         make -C u-boot nanopi5_defconfig
     fi
-    make -C u-boot -j$(nproc) BL31="../$bl31_file"
+    make -C u-boot -j$(nproc) BL31=$atf_file
 
     rm -f idbloader.img u-boot.itb
     u-boot/tools/mkimage -n rk3568 -T rksd -d "${ddrl_file}:u-boot/spl/u-boot-spl.bin" idbloader.img
@@ -49,7 +67,7 @@ main() {
     echo
 }
 
-apply_patches() {
+cherry_pick() {
     # pinctrl: rockchip: Add pinctrl route types
     # https://github.com/u-boot/u-boot/commit/32b2ea9818c6157bfc077de487b78e78536ab4a8
     git -C u-boot cherry-pick 32b2ea9818c6157bfc077de487b78e78536ab4a8
@@ -142,10 +160,6 @@ apply_patches() {
     # arm64: dts: rockchip: add gpio-ranges property to gpio nodes
     # https://github.com/u-boot/u-boot/commit/e92754e20cca37dcd62e195499ade25186d5f5e5
     git -C u-boot cherry-pick e92754e20cca37dcd62e195499ade25186d5f5e5
-
-    for patch in patches/*.patch; do
-        git -C u-boot am "../$patch"
-    done
 }
 
 # check if utility program is installed
