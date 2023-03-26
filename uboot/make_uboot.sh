@@ -175,6 +175,10 @@ cherry_pick() {
     # arm64: dts: rockchip: add gpio-ranges property to gpio nodes
     # https://github.com/u-boot/u-boot/commit/e92754e20cca37dcd62e195499ade25186d5f5e5
     git -C u-boot cherry-pick e92754e20cca37dcd62e195499ade25186d5f5e5
+
+    # clk: rockchip: rk3568: Fix reset handler
+    # https://github.com/u-boot/u-boot/commit/a67e219d0ca1b4b45ddb0cfb0afa2d1781262f62
+    git -C u-boot cherry-pick a67e219d0ca1b4b45ddb0cfb0afa2d1781262f62
 }
 
 # check if utility program is installed
