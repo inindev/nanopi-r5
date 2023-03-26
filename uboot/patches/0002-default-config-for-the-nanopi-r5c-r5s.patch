@@ -5,8 +5,8 @@ Subject: [PATCH 2/3] default config for the nanopi r5c/r5s
 
 Signed-off-by: John Clark <inindev@gmail.com>
 ---
- configs/nanopi5_defconfig | 76 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 76 insertions(+)
+ configs/nanopi5_defconfig | 75 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 75 insertions(+)
  create mode 100644 configs/nanopi5_defconfig
 
 diff --git a/configs/nanopi5_defconfig b/configs/nanopi5_defconfig
@@ -14,7 +14,7 @@ new file mode 100644
 index 0000000000..98884b9488
 --- /dev/null
 +++ b/configs/nanopi5_defconfig
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,75 @@
 +CONFIG_ARM=y
 +CONFIG_SKIP_LOWLEVEL_INIT=y
 +CONFIG_COUNTER_FREQUENCY=24000000
@@ -85,7 +85,6 @@ index 0000000000..98884b9488
 +CONFIG_REGULATOR_RK8XX=y
 +CONFIG_PWM_ROCKCHIP=y
 +CONFIG_SPL_RAM=y
-+CONFIG_DM_RESET=y
 +CONFIG_BAUDRATE=1500000
 +CONFIG_DEBUG_UART_SHIFT=2
 +CONFIG_SYSRESET=y

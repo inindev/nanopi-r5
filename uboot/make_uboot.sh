@@ -10,7 +10,7 @@ main() {
     local atf_url='https://github.com/inindev/atf/releases/download/lts-v2.8.1-rk3568/rk3568_bl31_inindev.elf'
     local atf_sha='c6a178789378800d1878bdc813d41b41b92874058eecd4e0a7b2050f66fff989'
     local atf_file=$(basename $atf_url)
-    local ddrl_file='rkbin/rk3568_ddr_1560MHz_v1.15.bin'
+    local tpl_file='../rkbin/rk3568_ddr_1560MHz_v1.15.bin'
 
     if [ '_clean' = "_$1" ]; then
         make -C u-boot distclean
@@ -50,15 +50,14 @@ main() {
     fi
 
     # outputs: idbloader.img & u-boot.itb
+    rm -f idbloader.img u-boot.itb
     if [ '_inc' != "_$1" ]; then
         make -C u-boot distclean
         make -C u-boot nanopi5_defconfig
     fi
-    make -C u-boot -j$(nproc) BL31=$atf_file
-
-    rm -f idbloader.img u-boot.itb
-    u-boot/tools/mkimage -n rk3568 -T rksd -d "${ddrl_file}:u-boot/spl/u-boot-spl.bin" idbloader.img
-    cp u-boot/u-boot.itb u-boot.itb
+    make -C u-boot -j$(nproc) BL31=$atf_file ROCKCHIP_TPL=$tpl_file
+    ln -sf u-boot/idbloader.img
+    ln -sf u-boot/u-boot.itb
 
     echo "\n${cya}idbloader and u-boot binaries are now ready${rst}"
     echo "\n${cya}copy images to media:${rst}"
@@ -71,6 +70,10 @@ cherry_pick() {
     # pinctrl: rockchip: Add pinctrl route types
     # https://github.com/u-boot/u-boot/commit/32b2ea9818c6157bfc077de487b78e78536ab4a8
     git -C u-boot cherry-pick 32b2ea9818c6157bfc077de487b78e78536ab4a8
+
+    # Revert "rockchip: Only call binman when TPL available"
+    # https://github.com/u-boot/u-boot/commit/1a45a031d75d8c1e4b63ff72ef5222e491f6481f
+    git -C u-boot cherry-pick 1a45a031d75d8c1e4b63ff72ef5222e491f6481f
 
     # mmc: rockchip_dw_mmc: fix DDR52 8-bit mode handling
     # https://github.com/u-boot/u-boot/commit/ea0f7662531fd360abf300691c85ceff5a0d0397
@@ -90,10 +93,22 @@ cherry_pick() {
 
     # binman: Add support for a rockchip-tpl entry
     # https://github.com/u-boot/u-boot/commit/05b978be5f5c5494044bd749f9b6b38f2bb5e0cc
+    # git -C u-boot cherry-pick 05b978be5f5c5494044bd749f9b6b38f2bb5e0cc
+    git -C u-boot format-patch -1 05b978be5f5c5494044bd749f9b6b38f2bb5e0cc
+    sed -i 's/386,6 +6388,11/077,5 +6079,10/' u-boot/0001-binman-Add-support-for-a-rockchip-tpl-entry.patch
+    sed -i "s/self\.assertEqual(\['u-boot', 'atf-2'\],/    'Cannot write symbols to an ELF file without Python elftools',/" u-boot/0001-binman-Add-support-for-a-rockchip-tpl-entry.patch
+    sed -i "s/             fdt_util\.GetStringList(node, 'loadables'))/str(exc\.exception))/" u-boot/0001-binman-Add-support-for-a-rockchip-tpl-entry.patch
+    sed -ni '/__name__/{x;d;};1h;1!{x;p;};${x;p;}' u-boot/0001-binman-Add-support-for-a-rockchip-tpl-entry.patch
+    git -C u-boot am 0001-binman-Add-support-for-a-rockchip-tpl-entry.patch
+    rm u-boot/0001-binman-Add-support-for-a-rockchip-tpl-entry.patch
+
     # rockchip: Use an external TPL binary on RK3568
     # https://github.com/u-boot/u-boot/commit/4773e9d5ed4c12e02759f1d732bb66006139037a
+    git -C u-boot cherry-pick 4773e9d5ed4c12e02759f1d732bb66006139037a
+
     # Revert "board: rockchip: Fix binman_init failure on EVB-RK3568"
     # https://github.com/u-boot/u-boot/commit/d1bdffa8a2409727a270c8edaa5d82fdc4eee1a3
+    git -C u-boot cherry-pick d1bdffa8a2409727a270c8edaa5d82fdc4eee1a3
 
     # rockchip: mkimage: Add rv1126 support
     # https://github.com/u-boot/u-boot/commit/6d70d826f553a321193ad917cd651fc5b12739ac
