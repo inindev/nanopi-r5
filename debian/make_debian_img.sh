@@ -19,7 +19,7 @@ main() {
     local acct_uid='debian'
     local acct_pass='debian'
     local disable_ipv6=true
-    local extra_pkgs='pciutils, sudo, wget, u-boot-tools, xxd, xz-utils, zip, unzip'
+    local extra_pkgs='pciutils, sudo, u-boot-tools, unzip, wget, xxd, xz-utils, zip, zstd'
 
     is_param 'clean' $@ && rm -rf cache.* && rm mmc_2g.img* && exit 0
 
