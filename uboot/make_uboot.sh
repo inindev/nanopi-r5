@@ -7,9 +7,7 @@ set -e
 
 main() {
     local utag='v2023.01'
-    local atf_url='https://github.com/inindev/atf/releases/download/lts-v2.8.1-rk3568/rk3568_bl31_inindev.elf'
-    local atf_sha='c6a178789378800d1878bdc813d41b41b92874058eecd4e0a7b2050f66fff989'
-    local atf_file=$(basename $atf_url)
+    local atf_file='../rkbin/rk3568_bl31_v1.28.elf'
     local tpl_file='../rkbin/rk3568_ddr_1560MHz_v1.15.bin'
 
     if [ '_clean' = "_$1" ]; then
@@ -39,14 +37,6 @@ main() {
         done
     elif [ "_$utag" != "_$(git -C u-boot branch | sed -n -e 's/^\* \(.*\)/\1/p')" ]; then
         git -C u-boot checkout $utag
-    fi
-
-    if [ ! -f u-boot/$atf_file ]; then
-        wget -cP u-boot $atf_url
-        if [ "$atf_sha" != $(sha256sum u-boot/$atf_file | cut -c1-64) ]; then
-            echo "invalid hash for atf binary: u-boot/$atf_file"
-            exit 5
-        fi
     fi
 
     # outputs: idbloader.img & u-boot.itb
