@@ -5,9 +5,8 @@ debian/*.img
 debian/*.img.xz
 debian/rootfs
 dtb/linux-*
-dtb/*-top.dts
+dtb/*.dt?
 dtb/*.dtsi
-dtb/*.dtb
 uboot/u-boot
 uboot/idbloader*.img
 uboot/u-boot*.itb

@@ -3,47 +3,64 @@
 set -e
 
 main() {
-    local lv='6.2.2'
-    local rkpath="linux-$lv/arch/arm64/boot/dts/rockchip"
+    local linux='https://git.kernel.org/torvalds/t/linux-6.3-rc4.tar.gz'
+
+    local lf=$(basename $linux)
+    local lv=$(echo $lf | sed -nE 's/linux-(.*)\.tar\..z/\1/p')
 
     if [ '_clean' = "_$1" ]; then
-        rm -f *.dtb
-        rm -f *-top.dts
+        rm -f *.dt?
         rm -f *.dtsi
-        rm -rf "linux-$lv"
+        rm -rf linux-$lv
         echo '\nclean complete\n'
         exit 0
     fi
 
     check_installed 'device-tree-compiler' 'gcc' 'wget' 'xz-utils'
 
-    if [ ! -f "linux-$lv.tar.xz" ]; then
-        wget "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$lv.tar.xz"
-    fi
+    [ -f $lf ] || wget $linux
 
-    if [ ! -d "linux-$lv" ]; then
-        tar "xavf" "linux-$lv.tar.xz" "linux-$lv/include/dt-bindings" "linux-$lv/include/uapi" "$rkpath"
-        cp rk3568-nanopi-r5.dts "$rkpath"
+    local rkpath=linux-$lv/arch/arm64/boot/dts/rockchip
+    if ! [ -d linux-$lv ]; then
+        tar xavf $lf linux-$lv/include/dt-bindings linux-$lv/include/uapi $rkpath
+        apply_patch $rkpath/rk3568-pinctrl.dtsi
+        apply_patch $rkpath/rk356x.dtsi
+        apply_patch $rkpath/rk3568.dtsi
+        apply_patch $rkpath/rk3568-nanopi-r5s.dtsi
+        apply_patch $rkpath/rk3568-nanopi-r5s.dts
+        apply_patch $rkpath/rk3568-nanopi-r5c.dts
     fi
 
     if [ '_links' = "_$1" ]; then
-#        ln -sf "$rkpath/rk3568-nanopi-r5.dts"
-        ln -sf "$rkpath/rk3568.dtsi"
-        ln -sf "$rkpath/rk356x.dtsi"
-        ln -sf "$rkpath/rk3568-pinctrl.dtsi"
+        ln -sfv $rkpath/rk3568-pinctrl.dtsi
+        ln -sfv $rkpath/rk356x.dtsi
+        ln -sfv $rkpath/rk3568.dtsi
+        ln -sfv $rkpath/rk3568-nanopi-r5s.dtsi
+        ln -sfv $rkpath/rk3568-nanopi-r5s.dts
+        ln -sfv $rkpath/rk3568-nanopi-r5c.dts
         echo '\nlinks created\n'
         exit 0
     fi
 
     # build
-    dt=rk3568-nanopi-r5
-    gcc -I "linux-$lv/include" -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp -o ${dt}-top.dts "$rkpath/${dt}.dts"
+    local dt=rk3568-nanopi-r5s
+    gcc -I linux-$lv/include -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp -o ${dt}-top.dts $rkpath/${dt}.dts
     dtc -@ -I dts -O dtb -o ${dt}.dtb ${dt}-top.dts
+    echo "\n${cya}device tree ready: ${dt}.dtb${rst}\n"
 
-    echo "\n${cya}build complete: ${dt}.dtb${rst}\n"
+    dt=rk3568-nanopi-r5c
+    gcc -I linux-$lv/include -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp -o ${dt}-top.dts $rkpath/${dt}.dts
+    dtc -@ -I dts -O dtb -o ${dt}.dtb ${dt}-top.dts
+    echo "\n${cya}device tree ready: ${dt}.dtb${rst}\n"
 }
 
-# check if utility program is installed
+apply_patch() {
+    local filepath=$1
+    local file=$(basename $filepath)
+    local url=https://git.kernel.org/pub/scm/linux/kernel/git/mmind/linux-rockchip.git/plain/arch/arm64/boot/dts/rockchip/$file\?h\=for-next
+    wget -O $filepath $url
+}
+
 check_installed() {
     local todo
     for item in "$@"; do
