@@ -50,8 +50,10 @@ main() {
     local lfw=$(download "$cache" 'https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20230210.tar.xz')
     local lfwsha='6e3d9e8d52cffc4ec0dbe8533a8445328e0524a20f159a5b61c2706f983ce38a'
     # device tree & uboot
-    local dtb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/rk3568-nanopi-r5.dtb')
-#    local dtb='../dtb/rk3568-nanopi-r5.dtb'
+    local dtbc=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/rk3568-nanopi-r5c.dtb')
+#    local dtbc='../dtb/rk3568-nanopi-r5c.dtb'
+    local dtbs=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/rk3568-nanopi-r5s.dtb')
+#    local dtbs='../dtb/rk3568-nanopi-r5s.dtb'
     local uboot_spl=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/idbloader.img')
 #    local uboot_spl='../uboot/idbloader.img'
     local uboot_itb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/u-boot.itb')
@@ -62,18 +64,23 @@ main() {
         exit 5
     fi
 
-    if [ ! -f "$dtb" ]; then
-        echo "device tree binary is missing: $dtb"
+    if [ ! -f "$dtbc" ]; then
+        echo "unable to fetch device tree binary: $dtbc"
+        exit 4
+    fi
+
+    if [ ! -f "$dtbs" ]; then
+        echo "unable to fetch device tree binary: $dtbs"
         exit 4
     fi
 
     if [ ! -f "$uboot_spl" ]; then
-        echo "uboot binary is missing: $uboot_spl"
+        echo "unable to fetch uboot binary: $uboot_spl"
         exit 4
     fi
 
     if [ ! -f "$uboot_itb" ]; then
-        echo "uboot binary is missing: $uboot_itb"
+        echo "unable to fetch uboot binary: $uboot_itb"
         exit 4
     fi
 
@@ -134,8 +141,9 @@ main() {
     mkimage -A arm64 -O linux -T script -C none -n 'u-boot boot script' -d "$mountpt/boot/boot.txt" "$mountpt/boot/boot.scr"
     echo "$(script_mkscr_sh)\n" > "$mountpt/boot/mkscr.sh"
     chmod 754 "$mountpt/boot/mkscr.sh"
-    install -m 644 "$dtb" "$mountpt/boot"
-    ln -sf $(basename "$dtb") "$mountpt/boot/dtb"
+    install -m 644 "$dtbc" "$mountpt/boot"
+    install -m 644 "$dtbs" "$mountpt/boot"
+    ln -sf $(basename "$dtbc") "$mountpt/boot/dtb"
 
     print_hdr "installing firmware"
     mkdir -p "$mountpt/lib/firmware"
@@ -382,39 +390,42 @@ script_rc_local() {
 	    resize2fs \$(findmnt / -o source -n)
 	    rm "\$this"
 	else
+	    is_r5c=\$([ -d '/sys/devices/platform/3c0800000.pcie/pci0002:00/0002:00:00.0/0002:01:00.0/net' ] || echo false && echo true)
 	    macd=\$(xxd -s250 -l6 -p /dev/urandom)
 
-	    if [ ! -f /etc/systemd/network/10-name-wan0.link ]; then
-	        cat <<-EOF > /etc/systemd/network/10-name-wan0.link
-				[Match]
-				Path=platform-fe2a0000.ethernet
-				[Link]
-				Name=wan0
-				MACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:\$//')
+	    if [ -d '/sys/devices/platform/3c0800000.pcie/pci0002:00/0002:00:00.0/0002:01:00.0/net' ]; then
+		# r5c
+		rm /boot/rk3568-nanopi-r5s.dtb
+		echo "[Match]\\nPath=platform-3c0400000.pcie-pci-0001:01:00.0\\n[Link]\\nName=lan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\lan0.link
+		echo "[Match]\\nPath=platform-3c0800000.pcie-pci-0002:01:00.0\\n[Link]\\nName=wan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\wan0.link
+	        cat <<-EOF > /etc/network/interfaces
+			# interfaces(5) file used by ifup(8) and ifdown(8)
+			# Include files from /etc/network/interfaces.d:
+			source /etc/network/interfaces.d/*
+
+			# loopback network interface
+			auto lo
+			iface lo inet loopback
+
+			# lan network interface
+			auto lan0
+			iface lan0 inet static
+			    address 192.168.1.1/24
+			    broadcast 192.168.1.255
+
+			# wan network interface
+			auto wan0
+			iface wan0 inet dhcp
+
 			EOF
-	    fi
-
-	    if [ ! -f /etc/systemd/network/10-name-lan1.link ]; then
-	        cat <<-EOF > /etc/systemd/network/10-name-lan1.link
-				[Match]
-				Path=platform-3c0000000.pcie-pci-0000:01:00.0
-				[Link]
-				Name=lan1
-				MACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:\$//')
-				EOF
-	    fi
-
-	    if [ ! -f /etc/systemd/network/10-name-lan2.link ]; then
-	        cat <<-EOF > /etc/systemd/network/10-name-lan2.link
-				[Match]
-				Path=platform-3c0400000.pcie-pci-0001:01:00.0
-				[Link]
-				Name=lan2
-				MACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000002)) | sed 's/../&:/g;s/:\$//')
-				EOF
-	    fi
-
-	    cat <<-EOF >> /etc/network/interfaces
+	    else
+		# r5s
+		ln -sf 'rk3568-nanopi-r5s.dtb' '/boot/dtb'
+		rm /boot/rk3568-nanopi-r5c.dtb
+		echo "[Match]\\nPath=platform-3c0000000.pcie-pci-0000:01:00.0\\n[Link]\\nName=lan1\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\lan1.link
+		echo "[Match]\\nPath=platform-3c0400000.pcie-pci-0001:01:00.0\\n[Link]\\nName=lan2\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\lan2.link
+		echo "[Match]\\nPath=platform-fe2a0000.ethernet\\n[Link]\\nName=wan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000002)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\wan0.link
+	        cat <<-EOF > /etc/network/interfaces
 			# interfaces(5) file used by ifup(8) and ifdown(8)
 			# Include files from /etc/network/interfaces.d:
 			source /etc/network/interfaces.d/*
@@ -439,7 +450,8 @@ script_rc_local() {
 			auto wan0
 			iface wan0 inet dhcp
 
-		EOF
+			EOF
+	    fi
 
 	    # regen ssh keys
 	    rm -f /etc/ssh/ssh_host_*
@@ -550,4 +562,3 @@ fi
 cd "$(dirname "$(readlink -f "$0")")"
 check_mount_only $@
 main $@
-
