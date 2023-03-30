@@ -27,8 +27,15 @@ main() {
         apply_patch $rkpath/rk356x.dtsi
         apply_patch $rkpath/rk3568.dtsi
         apply_patch $rkpath/rk3568-nanopi-r5s.dtsi
-        apply_patch $rkpath/rk3568-nanopi-r5s.dts
+
         apply_patch $rkpath/rk3568-nanopi-r5c.dts
+        sed -i '/gpio3 RK_PA3 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-1-100:00:link";' $rkpath/rk3568-nanopi-r5c.dts
+        sed -i '/gpio3 RK_PA4 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-2-100:00:link";' $rkpath/rk3568-nanopi-r5c.dts
+
+        apply_patch $rkpath/rk3568-nanopi-r5s.dts
+        sed -i '/gpio3 RK_PD6 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-0-100:00:link";' $rkpath/rk3568-nanopi-r5s.dts
+        sed -i '/gpio3 RK_PD7 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-1-100:00:link";' $rkpath/rk3568-nanopi-r5s.dts
+        sed -i '/gpio2 RK_PC1 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "stmmac-0:01:link";' $rkpath/rk3568-nanopi-r5s.dts
     fi
 
     if [ '_links' = "_$1" ]; then
