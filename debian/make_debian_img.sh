@@ -50,13 +50,13 @@ main() {
     local lfw=$(download "$cache" 'https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20230210.tar.xz')
     local lfwsha='6e3d9e8d52cffc4ec0dbe8533a8445328e0524a20f159a5b61c2706f983ce38a'
     # device tree & uboot
-    local dtbc=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/rk3568-nanopi-r5c.dtb')
+    local dtbc=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/rk3568-nanopi-r5c.dtb')
 #    local dtbc='../dtb/rk3568-nanopi-r5c.dtb'
-    local dtbs=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/rk3568-nanopi-r5s.dtb')
+    local dtbs=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/rk3568-nanopi-r5s.dtb')
 #    local dtbs='../dtb/rk3568-nanopi-r5s.dtb'
-    local uboot_spl=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/idbloader.img')
+    local uboot_spl=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/idbloader.img')
 #    local uboot_spl='../uboot/idbloader.img'
-    local uboot_itb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/u-boot.itb')
+    local uboot_itb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/u-boot.itb')
 #    local uboot_itb='../uboot/u-boot.itb'
 
     if [ "$lfwsha" != $(sha256sum "$lfw" | cut -c1-64) ]; then
@@ -118,9 +118,9 @@ main() {
     echo "$(file_apt_sources $deb_dist)\n" > "$mountpt/etc/apt/sources.list"
     echo "$(file_locale_cfg)\n" > "$mountpt/etc/default/locale"
 
-    # cleanup
-    rm -rf "$mountpt/etc/systemd/system/dbus-org.freedesktop.timesync1.service"
-    rm -rf "$mountpt/etc/systemd/system/sshd.service"
+    # disable sshd until after keys are regenerated on first boot
+    rm -f "$mountpt/etc/systemd/system/sshd.service"
+    rm -f "$mountpt/etc/systemd/system/multi-user.target.wants/ssh.service"
 
     # hostname
     echo $hostname > "$mountpt/etc/hostname"
@@ -456,6 +456,7 @@ script_rc_local() {
 	    # regen ssh keys
 	    rm -f /etc/ssh/ssh_host_*
 	    dpkg-reconfigure openssh-server
+	    systemctl enable ssh.service
 
 	    # expand root parition
 	    rp=\$(findmnt / -o source -n)
