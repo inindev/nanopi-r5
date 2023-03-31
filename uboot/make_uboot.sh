@@ -35,7 +35,7 @@ main() {
         for patch in patches/*.patch; do
             git -C u-boot am "../$patch"
         done
-    elif [ "_$utag" != "_$(git -C u-boot branch | sed -n -e 's/^\* \(.*\)/\1/p')" ]; then
+    elif [ "_$utag" != "_$(git -C u-boot branch --show-current)" ]; then
         git -C u-boot checkout $utag
     fi
 
