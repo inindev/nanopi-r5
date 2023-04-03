@@ -43,7 +43,7 @@ main() {
     rm -f idbloader.img u-boot.itb
     if [ '_inc' != "_$1" ]; then
         make -C u-boot distclean
-        make -C u-boot nanopi5_defconfig
+        make -C u-boot nanopi-r5-rk3568_defconfig
     fi
     make -C u-boot -j$(nproc) BL31=$atf_file ROCKCHIP_TPL=$tpl_file
     ln -sf u-boot/idbloader.img
@@ -166,9 +166,21 @@ cherry_pick() {
     # https://github.com/u-boot/u-boot/commit/e92754e20cca37dcd62e195499ade25186d5f5e5
     git -C u-boot cherry-pick e92754e20cca37dcd62e195499ade25186d5f5e5
 
+    # clk: rockchip: rk3568: add more supported clk rates for sdmmc and emmc
+    # https://github.com/u-boot/u-boot/commit/f0eb365e21d93d7d8b34cd84a8db2f26cab6ee9a
+    git -C u-boot cherry-pick f0eb365e21d93d7d8b34cd84a8db2f26cab6ee9a
+
+    # rockchip: rk3568: Fix boot device detection
+    # https://github.com/inindev/u-boot/commit/42f67fb51cb4f0aa84f39ea755f46686bec9f0b7
+    git -C u-boot cherry-pick 42f67fb51cb4f0aa84f39ea755f46686bec9f0b7
+
     # clk: rockchip: rk3568: Fix reset handler
     # https://github.com/u-boot/u-boot/commit/a67e219d0ca1b4b45ddb0cfb0afa2d1781262f62
     git -C u-boot cherry-pick a67e219d0ca1b4b45ddb0cfb0afa2d1781262f62
+
+    # Revert "arm64: dts: rk356x-u-boot: Drop combphy1 assigned-clocks/rates"
+    # https://github.com/u-boot/u-boot/commit/9fe2e4ab93ea34706dad615084ba9699a81fbcf8
+    git -C u-boot cherry-pick 9fe2e4ab93ea34706dad615084ba9699a81fbcf8
 }
 
 # check if utility program is installed
