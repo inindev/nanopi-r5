@@ -1,9 +1,9 @@
 # nanopi-r5
 #### *Stock Debian ARM64 Linux for the NanoPi R5C & R5S*
 
-This stock Debian ARM64 Linux image is built directly from official packages using the official Debian [Debootstrap](https://wiki.debian.org/Debootstrap) utility, see: https://github.com/inindev/nanopi-r5/blob/main/debian/make_debian_img.sh#L105
+This stock Debian ARM64 Linux image is built directly from official packages using the official Debian [Debootstrap](https://wiki.debian.org/Debootstrap) utility, see: https://github.com/inindev/nanopi-r5/blob/main/debian/make_debian_img.sh#L112
 
-Being an official unmodified Debian build, patches are directory available from the Debian repos using the stock **apt** package manager, see: https://github.com/inindev/nanopi-r5/blob/main/debian/make_debian_img.sh#L340
+Being an official unmodified Debian build, patches are directory available from the Debian repos using the stock **apt** package manager, see: https://github.com/inindev/nanopi-r5/blob/main/debian/make_debian_img.sh#L348
 
 If you want to run true up-stream Debian Linux on your ARM64 device, this is the way to do it.
 
@@ -14,7 +14,7 @@ If you want to run true up-stream Debian Linux on your ARM64 device, this is the
 
 **1. download image**
 ```
-wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/nanopi-r5_bookworm-rc1.img.xz
+wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/nanopi-r5_bookworm-rc2.img.xz
 ```
 
 <br/>
@@ -38,7 +38,7 @@ brw-rw---- 1 root disk 8, 0 Mar 19 21:08 /dev/sda
 
 **3. in the case above, substitute 'a' for 'X' in the command below (for /dev/sda)**
 ```
-sudo sh -c 'xzcat nanopi-r5_bookworm-rc1.img.xz > /dev/sdX && sync'
+sudo sh -c 'xzcat nanopi-r5_bookworm-rc2.img.xz > /dev/sdX && sync'
 ```
 
 #### when the micro sd has finished imaging, eject and use it to boot the nanopi r5c or r5s to finish setup
@@ -104,8 +104,8 @@ The minimum required binary for the emmc or micro sd is u-boot which can then bo
 
 **1. download u-boot images**
 ```
-wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/idbloader.img
-wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc1/u-boot.itb
+wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/idbloader.img
+wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/u-boot.itb
 ```
 
 <br/>
