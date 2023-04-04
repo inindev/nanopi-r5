@@ -14,7 +14,7 @@ If you want to run true up-stream Debian Linux on your ARM64 device, this is the
 
 **1. download image**
 ```
-wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/nanopi-r5_bookworm-rc2.img.xz
+wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/nanopi-r5_bookworm-rc3.img.xz
 ```
 
 <br/>
@@ -38,7 +38,7 @@ brw-rw---- 1 root disk 8, 0 Mar 19 21:08 /dev/sda
 
 **3. in the case above, substitute 'a' for 'X' in the command below (for /dev/sda)**
 ```
-sudo sh -c 'xzcat nanopi-r5_bookworm-rc2.img.xz > /dev/sdX && sync'
+sudo sh -c 'xzcat nanopi-r5_bookworm-rc3.img.xz > /dev/sdX && sync'
 ```
 
 #### when the micro sd has finished imaging, eject and use it to boot the nanopi r5c or r5s to finish setup
@@ -104,8 +104,8 @@ The minimum required binary for the emmc or micro sd is u-boot which can then bo
 
 **1. download u-boot images**
 ```
-wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/idbloader.img
-wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/u-boot.itb
+wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/idbloader.img
+wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/u-boot.itb
 ```
 
 <br/>
