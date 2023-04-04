@@ -1,4 +1,4 @@
-From 23566bd7a999fcce782b9b3c9f38ef26e3f1a588 Mon Sep 17 00:00:00 2001
+From 889d4c547bb69d4291a0ee7a2aa6c2a6704bd39d Mon Sep 17 00:00:00 2001
 From: John Clark <inindev@gmail.com>
 Date: Mon, 3 Apr 2023 09:49:54 -0400
 Subject: [PATCH 2/3] use linux device tree
