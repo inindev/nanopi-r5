@@ -19,7 +19,7 @@ main() {
     local acct_uid='debian'
     local acct_pass='debian'
     local disable_ipv6=true
-    local extra_pkgs='pciutils, sudo, u-boot-tools, unzip, wget, xxd, xz-utils, zip, zstd'
+    local extra_pkgs='curl, pciutils, sudo, u-boot-tools, unzip, wget, xxd, xz-utils, zip, zstd'
 
     is_param 'clean' $@ && rm -rf cache.* && rm mmc_2g.img* && exit 0
 
@@ -50,13 +50,13 @@ main() {
     local lfw=$(download "$cache" 'https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20230210.tar.xz')
     local lfwsha='6e3d9e8d52cffc4ec0dbe8533a8445328e0524a20f159a5b61c2706f983ce38a'
     # device tree & uboot
-    local dtbc=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/rk3568-nanopi-r5c.dtb')
+    local dtbc=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/rk3568-nanopi-r5c.dtb')
 #    local dtbc='../dtb/rk3568-nanopi-r5c.dtb'
-    local dtbs=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/rk3568-nanopi-r5s.dtb')
+    local dtbs=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/rk3568-nanopi-r5s.dtb')
 #    local dtbs='../dtb/rk3568-nanopi-r5s.dtb'
-    local uboot_spl=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/idbloader.img')
+    local uboot_spl=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/idbloader.img')
 #    local uboot_spl='../uboot/idbloader.img'
-    local uboot_itb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc2/u-boot.itb')
+    local uboot_itb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/u-boot.itb')
 #    local uboot_itb='../uboot/u-boot.itb'
 
     if [ "$lfwsha" != $(sha256sum "$lfw" | cut -c1-64) ]; then
