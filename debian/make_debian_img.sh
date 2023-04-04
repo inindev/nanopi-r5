@@ -395,7 +395,7 @@ script_rc_local() {
 
 	    if [ -d '/sys/devices/platform/3c0800000.pcie/pci0002:00/0002:00:00.0/0002:01:00.0/net' ]; then
 		# r5c
-		rm /boot/rk3568-nanopi-r5s.dtb
+		rm -f /boot/rk3568-nanopi-r5s.dtb
 		echo "[Match]\\nPath=platform-3c0400000.pcie-pci-0001:01:00.0\\n[Link]\\nName=lan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\lan0.link
 		echo "[Match]\\nPath=platform-3c0800000.pcie-pci-0002:01:00.0\\n[Link]\\nName=wan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\wan0.link
 	        cat <<-EOF > /etc/network/interfaces
@@ -421,7 +421,7 @@ script_rc_local() {
 	    else
 		# r5s
 		ln -sf 'rk3568-nanopi-r5s.dtb' '/boot/dtb'
-		rm /boot/rk3568-nanopi-r5c.dtb
+		rm -f /boot/rk3568-nanopi-r5c.dtb
 		echo "[Match]\\nPath=platform-3c0000000.pcie-pci-0000:01:00.0\\n[Link]\\nName=lan1\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\lan1.link
 		echo "[Match]\\nPath=platform-3c0400000.pcie-pci-0001:01:00.0\\n[Link]\\nName=lan2\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\lan2.link
 		echo "[Match]\\nPath=platform-fe2a0000.ethernet\\n[Link]\\nName=wan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000002)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\wan0.link
@@ -461,8 +461,12 @@ script_rc_local() {
 	    # expand root parition
 	    rp=\$(findmnt / -o source -n)
 	    rpn=\$(echo "\$rp" | grep -o '[[:digit:]]*\$')
-	    rd="/dev/\$(/usr/bin/lsblk -no pkname \$rp)"
+	    rd="/dev/\$(lsblk -no pkname \$rp)"
 	    echo ', +' | sfdisk -f -N \$rpn \$rd
+
+	    # change uuid on partition
+	    uuid=\$(cat /proc/sys/kernel/random/uuid)
+	    sfdisk --part-uuid \$rd \$rpn \$uuid
 
 	    # setup for expand fs
 	    chmod 774 "\$this"
