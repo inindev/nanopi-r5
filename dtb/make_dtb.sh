@@ -3,7 +3,7 @@
 set -e
 
 main() {
-    local linux='https://git.kernel.org/torvalds/t/linux-6.3-rc4.tar.gz'
+    local linux='https://git.kernel.org/torvalds/t/linux-6.3-rc5.tar.gz'
 
     local lf=$(basename $linux)
     local lv=$(echo $lf | sed -nE 's/linux-(.*)\.tar\..z/\1/p')
