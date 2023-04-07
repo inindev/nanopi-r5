@@ -1,4 +1,4 @@
-## u-boot 2023.01 for the nanopi r5c / r5s
+## u-boot 2023.04 for the nanopi r5c / r5s
 
 <i>Note: This script is intended to be run from a 64 bit arm device such as an odroid m1 or a raspberry pi4.</i>
 
