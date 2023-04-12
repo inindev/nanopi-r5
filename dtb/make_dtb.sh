@@ -3,7 +3,7 @@
 set -e
 
 main() {
-    local linux='https://git.kernel.org/torvalds/t/linux-6.3-rc5.tar.gz'
+    local linux='https://git.kernel.org/torvalds/t/linux-6.3-rc6.tar.gz'
 
     local lf=$(basename $linux)
     local lv=$(echo $lf | sed -nE 's/linux-(.*)\.tar\..z/\1/p')
@@ -23,25 +23,23 @@ main() {
     local rkpath=linux-$lv/arch/arm64/boot/dts/rockchip
     if ! [ -d linux-$lv ]; then
         tar xavf $lf linux-$lv/include/dt-bindings linux-$lv/include/uapi $rkpath
-        apply_patch $rkpath/rk3568-pinctrl.dtsi
-        apply_patch $rkpath/rk356x.dtsi
-        apply_patch $rkpath/rk3568.dtsi
-        apply_patch $rkpath/rk3568-nanopi-r5s.dtsi
+        get_for_next $rkpath/rk356x.dtsi
+        get_for_next $rkpath/rk3568-nanopi-r5s.dtsi
 
-        apply_patch $rkpath/rk3568-nanopi-r5c.dts
+        get_for_next $rkpath/rk3568-nanopi-r5c.dts
         sed -i '/gpio3 RK_PA3 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-1-100:00:link";' $rkpath/rk3568-nanopi-r5c.dts
         sed -i '/gpio3 RK_PA4 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-2-100:00:link";' $rkpath/rk3568-nanopi-r5c.dts
 
-        apply_patch $rkpath/rk3568-nanopi-r5s.dts
+        get_for_next $rkpath/rk3568-nanopi-r5s.dts
         sed -i '/gpio3 RK_PD6 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-0-100:00:link";' $rkpath/rk3568-nanopi-r5s.dts
         sed -i '/gpio3 RK_PD7 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-1-100:00:link";' $rkpath/rk3568-nanopi-r5s.dts
         sed -i '/gpio2 RK_PC1 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "stmmac-0:01:link";' $rkpath/rk3568-nanopi-r5s.dts
     fi
 
     if [ '_links' = "_$1" ]; then
-        ln -sfv $rkpath/rk3568-pinctrl.dtsi
         ln -sfv $rkpath/rk356x.dtsi
         ln -sfv $rkpath/rk3568.dtsi
+        ln -sfv $rkpath/rk3568-pinctrl.dtsi
         ln -sfv $rkpath/rk3568-nanopi-r5s.dtsi
         ln -sfv $rkpath/rk3568-nanopi-r5s.dts
         ln -sfv $rkpath/rk3568-nanopi-r5c.dts
@@ -61,7 +59,7 @@ main() {
     echo "\n${cya}device tree ready: ${dt}.dtb${rst}\n"
 }
 
-apply_patch() {
+get_for_next() {
     local filepath=$1
     local file=$(basename $filepath)
     local url=https://git.kernel.org/pub/scm/linux/kernel/git/mmind/linux-rockchip.git/plain/arch/arm64/boot/dts/rockchip/$file\?h\=for-next
