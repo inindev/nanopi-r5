@@ -93,48 +93,32 @@ sudo nano /etc/hosts
 
 
 ---
-### booting directly to m.2 ssd from emmc or micro sd bootstrap
+### booting from internal eMMC
 
 <br/>
 
-The nanopi r5c & r5s boards always need to boot from internal emmc or removable micro sd card.
-The minimum required binary for the emmc or micro sd is u-boot which can then boot an internal m.2 ssd.
+Imaging the internal eMMC device involves booting from a removable MMC card and imaging the internal eMMC device. When booted, the removable MMC device is seen as ```/dev/mmcblk0``` and the internal eMMC device is seen as ```/dev/mmcblk1```
 
 <br/>
 
-**1. download u-boot images**
+**1. boot from removable MMC**
+
+Using the steps in the first section above, create a removable MMC card and boot using it. Note: If the internal eMMC device already has a bootable image on it, it will prefer to boot from that. To force the nanopi5 to boot from the removable MMC card you just made, hold the ```mask``` button down before applying power. Once successfully booted to the removable MMC, you will be able to see this by using the ```df``` command which will show /dev/mmcblk0p1 as the booted partition.
+
+<br/>
+
+**2. download image to the booted MMC card and image the internal eMMC**
 ```
-wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/idbloader.img
-wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/u-boot.itb
+wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/nanopi-r5_bookworm-rc3.img.xz
+sudo su
+xzcat nanopi-r5_bookworm-rc3.img.xz > /dev/mmcblk1
 ```
 
 <br/>
 
-**2. determine the location of the target micro sd card**
+Once imaging completes, shutdown, remove the MMC card and it will then boot using the internal eMMC device.
 
- * before plugging-in device:
-```
-ls -l /dev/sd*
-ls: cannot access '/dev/sd*': No such file or directory
-```
-
- * after plugging-in device:
-```
-ls -l /dev/sd*
-brw-rw---- 1 root disk 8, 0 Mar 19 21:08 /dev/sda
-```
-* note: for mac, the device is ```/dev/rdiskX```
-
-<br/>
-
-**3. in the case above, substitute 'a' for 'X' in the command below (for /dev/sda)**
-```
-cat /dev/zero | sudo tee /dev/sdX
-sudo dd bs=4K seek=8 if=rksd_loader.img of=/dev/sdX conv=notrunc
-sudo dd bs=4K seek=2048 if=u-boot.itb of=/dev/sdX conv=notrunc,fsync
-```
-
-#### when the micro sd has finished imaging, eject and use it to boot the nanopi r5c or r5s
+Note: Once booted, ```sudo apt update``` then ```sudo apt upgrade``` to get the latest updates from the debian repositories.
 
 <br/>
 
