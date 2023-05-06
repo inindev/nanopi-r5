@@ -2,8 +2,13 @@
 
 set -e
 
+# script exit codes:
+#   1: missing utility
+#   5: invalid file hash
+
 main() {
-    local linux='https://git.kernel.org/torvalds/t/linux-6.3-rc6.tar.gz'
+    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.3.1.tar.xz'
+    local lxsha='78620fb4a7d5e0db1d4eb8d5b1c6e207ba5d19564efa63967a59b6daf89b3f2a'
 
     local lf=$(basename $linux)
     local lv=$(echo $lf | sed -nE 's/linux-(.*)\.tar\..z/\1/p')
@@ -19,6 +24,11 @@ main() {
     check_installed 'device-tree-compiler' 'gcc' 'wget' 'xz-utils'
 
     [ -f $lf ] || wget $linux
+
+    if [ _$lxsha != _$(sha256sum $lf | cut -c1-64) ]; then
+        echo "invalid hash for linux source file: $lf"
+        exit 5
+    fi
 
     local rkpath=linux-$lv/arch/arm64/boot/dts/rockchip
     if ! [ -d linux-$lv ]; then
@@ -62,7 +72,7 @@ main() {
 get_for_next() {
     local filepath=$1
     local file=$(basename $filepath)
-    local url=https://git.kernel.org/pub/scm/linux/kernel/git/mmind/linux-rockchip.git/plain/arch/arm64/boot/dts/rockchip/$file\?h\=for-next
+    local url=https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/plain/arch/arm64/boot/dts/rockchip/$file?h=next-20230505
     wget -O $filepath $url
 }
 
