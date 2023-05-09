@@ -13,13 +13,20 @@ set -e
 main() {
     # file media is sized with the number between 'mmc_' and '.img'
     #   use 'm' for 1024^2 and 'g' for 1024^3
-    local media='mmc_2g.img' # or block device '/dev/sdX'
+    local media='mmc_2g_r5s.img' # or block device '/dev/sdX'
     local deb_dist='bookworm'
     local hostname='nanopi5-arm64'
     local acct_uid='debian'
     local acct_pass='debian'
     local disable_ipv6=true
     local extra_pkgs='curl, pciutils, sudo, u-boot-tools, unzip, wget, xxd, xz-utils, zip, zstd'
+
+    local make_r5c=false
+    if is_param 'r5c' $@; then
+        make_r5c=true
+        media=$(echo $media | sed 's/r5s/r5c/')
+    fi
+    print_hdr "building media: $media"
 
     is_param 'clean' $@ && rm -rf cache.* && rm mmc_2g.img* && exit 0
 
@@ -50,13 +57,18 @@ main() {
     local lfw=$(download "$cache" 'https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20230210.tar.xz')
     local lfwsha='6e3d9e8d52cffc4ec0dbe8533a8445328e0524a20f159a5b61c2706f983ce38a'
     # device tree & uboot
-    local dtbc=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/rk3568-nanopi-r5c.dtb')
-#    local dtbc='../dtb/rk3568-nanopi-r5c.dtb'
-    local dtbs=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/rk3568-nanopi-r5s.dtb')
-#    local dtbs='../dtb/rk3568-nanopi-r5s.dtb'
-    local uboot_spl=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/idbloader.img')
+    if $make_r5c; then
+        print_hdr "configuring r5c device tree"
+        local dtb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/rk3568-nanopi-r5c.dtb')
+#        local dtb='../dtb/rk3568-nanopi-r5c.dtb'
+    else
+        print_hdr "configuring r5s device tree"
+        local dtb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/rk3568-nanopi-r5s.dtb')
+#        local dtb='../dtb/rk3568-nanopi-r5s.dtb'
+    fi
+    local uboot_spl=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/idbloader.img')
 #    local uboot_spl='../uboot/idbloader.img'
-    local uboot_itb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc3/u-boot.itb')
+    local uboot_itb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/u-boot.itb')
 #    local uboot_itb='../uboot/u-boot.itb'
 
     if [ "$lfwsha" != $(sha256sum "$lfw" | cut -c1-64) ]; then
@@ -64,13 +76,8 @@ main() {
         exit 5
     fi
 
-    if [ ! -f "$dtbc" ]; then
-        echo "unable to fetch device tree binary: $dtbc"
-        exit 4
-    fi
-
-    if [ ! -f "$dtbs" ]; then
-        echo "unable to fetch device tree binary: $dtbs"
+    if [ ! -f "$dtb" ]; then
+        echo "unable to fetch device tree binary: $dtb"
         exit 4
     fi
 
@@ -141,9 +148,8 @@ main() {
     mkimage -A arm64 -O linux -T script -C none -n 'u-boot boot script' -d "$mountpt/boot/boot.txt" "$mountpt/boot/boot.scr"
     echo "$(script_mkscr_sh)\n" > "$mountpt/boot/mkscr.sh"
     chmod 754 "$mountpt/boot/mkscr.sh"
-    install -m 644 "$dtbc" "$mountpt/boot"
-    install -m 644 "$dtbs" "$mountpt/boot"
-    ln -sf $(basename "$dtbc") "$mountpt/boot/dtb"
+    install -m 644 "$dtb" "$mountpt/boot"
+    ln -sf $(basename "$dtb") "$mountpt/boot/dtb"
 
     print_hdr "installing firmware"
     mkdir -p "$mountpt/lib/firmware"
@@ -151,7 +157,11 @@ main() {
     tar -C "$mountpt/lib/firmware" --strip-components=1 --wildcards -xavf "$lfw" "${lfwn%%.*}/rockchip" "${lfwn%%.*}/rtl_nic"
 
     print_hdr "installing rootfs expansion script to /etc/rc.local"
-    echo "$(script_rc_local)\n" > "$mountpt/etc/rc.local"
+    if $make_r5c; then
+        echo "$(script_rc_local_r5c)\n" > "$mountpt/etc/rc.local"
+    else
+        echo "$(script_rc_local_r5s)\n" > "$mountpt/etc/rc.local"
+    fi
     chmod 754 "$mountpt/etc/rc.local"
 
     print_hdr "creating user account"
@@ -194,7 +204,7 @@ main() {
 make_image_file() {
     local filename="$1"
     rm -f "$filename"*
-    local size="$(echo "$filename" | sed -rn 's/.*mmc_([[:digit:]]+[m|g])\.img$/\1/p')"
+    local size="$(echo "$filename" | sed -rn 's/.*mmc_([[:digit:]]+[m|g])_r5.\.img$/\1/p')"
     local bytes="$(echo "$size" | sed -e 's/g/ << 30/' -e 's/m/ << 20/')"
     dd bs=64K count=$(($bytes >> 16)) if=/dev/zero of="$filename" status=progress
 }
@@ -376,7 +386,7 @@ file_locale_cfg() {
 	EOF
 }
 
-script_rc_local() {
+script_rc_local_r5s() {
     cat <<-EOF2
 	#!/bin/sh
 
@@ -390,68 +400,103 @@ script_rc_local() {
 	    resize2fs \$(findmnt / -o source -n)
 	    rm "\$this"
 	else
-	    is_r5c=\$([ -d '/sys/devices/platform/3c0800000.pcie/pci0002:00/0002:00:00.0/0002:01:00.0/net' ] || echo false && echo true)
 	    macd=\$(xxd -s250 -l6 -p /dev/urandom)
 
-	    if [ -d '/sys/devices/platform/3c0800000.pcie/pci0002:00/0002:00:00.0/0002:01:00.0/net' ]; then
-		# r5c
-		rm -f /boot/rk3568-nanopi-r5s.dtb
-		echo "[Match]\\nPath=platform-3c0400000.pcie-pci-0001:01:00.0\\n[Link]\\nName=lan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\lan0.link
-		echo "[Match]\\nPath=platform-3c0800000.pcie-pci-0002:01:00.0\\n[Link]\\nName=wan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\wan0.link
-	        cat <<-EOF > /etc/network/interfaces
-			# interfaces(5) file used by ifup(8) and ifdown(8)
-			# Include files from /etc/network/interfaces.d:
-			source /etc/network/interfaces.d/*
+	    # r5s config
+	    echo "[Match]\\nPath=platform-3c0000000.pcie-pci-0000:01:00.0\\n[Link]\\nName=lan1\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-lan1.link
+	    echo "[Match]\\nPath=platform-3c0400000.pcie-pci-0001:01:00.0\\n[Link]\\nName=lan2\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-lan2.link
+	    echo "[Match]\\nPath=platform-fe2a0000.ethernet\\n[Link]\\nName=wan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000002)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-wan0.link
 
-			# loopback network interface
-			auto lo
-			iface lo inet loopback
+	    cat <<-EOF > /etc/network/interfaces
+		# interfaces(5) file used by ifup(8) and ifdown(8)
+		# Include files from /etc/network/interfaces.d:
+		source /etc/network/interfaces.d/*
 
-			# lan network interface
-			auto lan0
-			iface lan0 inet static
-			    address 192.168.1.1/24
-			    broadcast 192.168.1.255
+		# loopback network interface
+		auto lo
+		iface lo inet loopback
 
-			# wan network interface
-			auto wan0
-			iface wan0 inet dhcp
+		# lan1 network interface
+		auto lan1
+		iface lan1 inet static
+		    address 192.168.1.1/24
+		    broadcast 192.168.1.255
 
-			EOF
-	    else
-		# r5s
-		ln -sf 'rk3568-nanopi-r5s.dtb' '/boot/dtb'
-		rm -f /boot/rk3568-nanopi-r5c.dtb
-		echo "[Match]\\nPath=platform-3c0000000.pcie-pci-0000:01:00.0\\n[Link]\\nName=lan1\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\lan1.link
-		echo "[Match]\\nPath=platform-3c0400000.pcie-pci-0001:01:00.0\\n[Link]\\nName=lan2\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\lan2.link
-		echo "[Match]\\nPath=platform-fe2a0000.ethernet\\n[Link]\\nName=wan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000002)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\wan0.link
-	        cat <<-EOF > /etc/network/interfaces
-			# interfaces(5) file used by ifup(8) and ifdown(8)
-			# Include files from /etc/network/interfaces.d:
-			source /etc/network/interfaces.d/*
+		# lan2 network interface
+		auto lan2
+		iface lan2 inet static
+		    address 192.168.2.1/24
+		    broadcast 192.168.2.255
 
-			# loopback network interface
-			auto lo
-			iface lo inet loopback
+		# wan network interface
+		auto wan0
+		iface wan0 inet dhcp
 
-			# lan1 network interface
-			auto lan1
-			iface lan1 inet static
-			    address 192.168.1.1/24
-			    broadcast 192.168.1.255
-
-			# lan2 network interface
-			auto lan2
-			iface lan2 inet static
-			    address 192.168.2.1/24
-			    broadcast 192.168.2.255
-
-			# wan network interface
-			auto wan0
-			iface wan0 inet dhcp
-
-			EOF
+		EOF
 	    fi
+
+	    # regen ssh keys
+	    rm -f /etc/ssh/ssh_host_*
+	    dpkg-reconfigure openssh-server
+	    systemctl enable ssh.service
+
+	    # expand root parition
+	    rp=\$(findmnt / -o source -n)
+	    rpn=\$(echo "\$rp" | grep -o '[[:digit:]]*\$')
+	    rd="/dev/\$(lsblk -no pkname \$rp)"
+	    echo ', +' | sfdisk -f -N \$rpn \$rd
+
+	    # change uuid on partition
+	    uuid=\$(cat /proc/sys/kernel/random/uuid)
+	    sfdisk --part-uuid \$rd \$rpn \$uuid
+
+	    # setup for expand fs
+	    chmod 774 "\$this"
+	    reboot
+	fi
+	EOF2
+}
+
+script_rc_local_r5c() {
+    cat <<-EOF2
+	#!/bin/sh
+
+	set -e
+
+	this=\$(realpath \$0)
+	perm=\$(stat -c %a \$this)
+
+	if [ 774 -eq \$perm ]; then
+	    # expand fs
+	    resize2fs \$(findmnt / -o source -n)
+	    rm "\$this"
+	else
+	    macd=\$(xxd -s250 -l6 -p /dev/urandom)
+
+	    # r5c config
+	    echo "[Match]\\nPath=platform-3c0400000.pcie-pci-0001:01:00.0\\n[Link]\\nName=lan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\lan0.link
+	    echo "[Match]\\nPath=platform-3c0800000.pcie-pci-0002:01:00.0\\n[Link]\\nName=wan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\wan0.link
+
+	    cat <<-EOF > /etc/network/interfaces
+		# interfaces(5) file used by ifup(8) and ifdown(8)
+		# Include files from /etc/network/interfaces.d:
+		source /etc/network/interfaces.d/*
+
+		# loopback network interface
+		auto lo
+		iface lo inet loopback
+
+		# lan network interface
+		auto lan0
+		iface lan0 inet static
+		    address 192.168.1.1/24
+		    broadcast 192.168.1.255
+
+		# wan network interface
+		auto wan0
+		iface wan0 inet dhcp
+
+		EOF
 
 	    # regen ssh keys
 	    rm -f /etc/ssh/ssh_host_*
@@ -567,3 +612,4 @@ fi
 cd "$(dirname "$(readlink -f "$0")")"
 check_mount_only $@
 main $@
+
