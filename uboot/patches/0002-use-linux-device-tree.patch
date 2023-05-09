@@ -1,24 +1,37 @@
-From 889d4c547bb69d4291a0ee7a2aa6c2a6704bd39d Mon Sep 17 00:00:00 2001
+From 3d9c264b090237fc1908c832ae439494d29e7866 Mon Sep 17 00:00:00 2001
 From: John Clark <inindev@gmail.com>
 Date: Mon, 3 Apr 2023 09:49:54 -0400
 Subject: [PATCH 2/3] use linux device tree
 
 ---
- arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi |  18 +
- arch/arm/dts/rk3568-nanopi-r5s.dts         | 137 +++++
- arch/arm/dts/rk3568-nanopi-r5s.dtsi        | 591 +++++++++++++++++++++
- arch/arm/dts/rk356x.dtsi                   |  19 +-
- 4 files changed, 754 insertions(+), 11 deletions(-)
+ arch/arm/dts/Makefile                      |   1 +
+ arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi |  44 ++
+ arch/arm/dts/rk3568-nanopi-r5s.dts         | 140 +++++
+ arch/arm/dts/rk3568-nanopi-r5s.dtsi        | 590 +++++++++++++++++++++
+ arch/arm/dts/rk356x.dtsi                   |  14 +-
+ 5 files changed, 783 insertions(+), 6 deletions(-)
  create mode 100644 arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi
  create mode 100644 arch/arm/dts/rk3568-nanopi-r5s.dts
  create mode 100644 arch/arm/dts/rk3568-nanopi-r5s.dtsi
 
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index c160e884bf..0eb7eaf256 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -167,6 +167,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
+ dtb-$(CONFIG_ROCKCHIP_RK3568) += \
+ 	rk3568-evb.dtb \
+ 	rk3566-radxa-cm3-io.dtb \
++	rk3568-nanopi-r5s.dtb \
+ 	rk3568-rock-3a.dtb
+ 
+ dtb-$(CONFIG_ROCKCHIP_RK3588) += \
 diff --git a/arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi b/arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi
 new file mode 100644
-index 0000000000..3c925161d4
+index 0000000000..25365de7b1
 --- /dev/null
 +++ b/arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi
-@@ -0,0 +1,18 @@
+@@ -0,0 +1,44 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * (C) Copyright 2021 Rockchip Electronics Co., Ltd
@@ -29,20 +42,46 @@ index 0000000000..3c925161d4
 +/ {
 +	chosen {
 +		stdout-path = &uart2;
++		u-boot,spl-boot-order = "same-as-spl", &sdmmc0, &sdhci;
 +	};
++};
++
++&sdhci {
++	cap-mmc-highspeed;
++	mmc-ddr-1_8v;
++	mmc-hs200-1_8v;
++	mmc-hs400-1_8v;
++	mmc-hs400-enhanced-strobe;
++};
++
++&sdmmc2 {
++	status = "disabled";
++};
++
++&uart1 {
++	status = "disabled";
 +};
 +
 +&uart2 {
 +	clock-frequency = <24000000>;
-+	u-boot,dm-spl;
++	u-boot,dm-pre-reloc;
 +	status = "okay";
 +};
++
++&vcc5v0_usb_host {
++	regulator-boot-on;
++};
++
++&vcc5v0_usb_otg {
++	regulator-boot-on;
++};
++
 diff --git a/arch/arm/dts/rk3568-nanopi-r5s.dts b/arch/arm/dts/rk3568-nanopi-r5s.dts
 new file mode 100644
-index 0000000000..2a1118f15c
+index 0000000000..df41e9d9e8
 --- /dev/null
 +++ b/arch/arm/dts/rk3568-nanopi-r5s.dts
-@@ -0,0 +1,137 @@
+@@ -0,0 +1,140 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
 +/*
 + * Copyright (c) 2022 FriendlyElec Computer Tech. Co., Ltd.
@@ -72,6 +111,7 @@ index 0000000000..2a1118f15c
 +			function = LED_FUNCTION_LAN;
 +			function-enumerator = <1>;
 +			gpios = <&gpio3 RK_PD6 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "r8169-0-100:00:link";
 +		};
 +
 +		led-lan2 {
@@ -79,6 +119,7 @@ index 0000000000..2a1118f15c
 +			function = LED_FUNCTION_LAN;
 +			function-enumerator = <2>;
 +			gpios = <&gpio3 RK_PD7 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "r8169-1-100:00:link";
 +		};
 +
 +		power_led: led-power {
@@ -92,6 +133,7 @@ index 0000000000..2a1118f15c
 +			color = <LED_COLOR_ID_GREEN>;
 +			function = LED_FUNCTION_WAN;
 +			gpios = <&gpio2 RK_PC1 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "stmmac-0:01:link";
 +		};
 +	};
 +};
@@ -182,10 +224,10 @@ index 0000000000..2a1118f15c
 +
 diff --git a/arch/arm/dts/rk3568-nanopi-r5s.dtsi b/arch/arm/dts/rk3568-nanopi-r5s.dtsi
 new file mode 100644
-index 0000000000..e31492f7c5
+index 0000000000..58ba328ea7
 --- /dev/null
 +++ b/arch/arm/dts/rk3568-nanopi-r5s.dtsi
-@@ -0,0 +1,591 @@
+@@ -0,0 +1,590 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
 +/*
 + * Copyright (c) 2022 FriendlyElec Computer Tech. Co., Ltd.
@@ -677,7 +719,6 @@ index 0000000000..e31492f7c5
 +&sdhci {
 +	bus-width = <8>;
 +	max-frequency = <200000000>;
-+	mmc-hs200-1_8v;
 +	non-removable;
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&emmc_bus8 &emmc_clk &emmc_cmd>;
@@ -778,7 +819,7 @@ index 0000000000..e31492f7c5
 +	};
 +};
 diff --git a/arch/arm/dts/rk356x.dtsi b/arch/arm/dts/rk356x.dtsi
-index 6492ace0de..802fcc9638 100644
+index 6492ace0de..f62e0fd881 100644
 --- a/arch/arm/dts/rk356x.dtsi
 +++ b/arch/arm/dts/rk356x.dtsi
 @@ -422,8 +422,9 @@
@@ -823,46 +864,6 @@ index 6492ace0de..802fcc9638 100644
  		interrupt-map-mask = <0 0 0 7>;
  		interrupt-map = <0 0 0 1 &pcie_intc 0>,
  				<0 0 0 2 &pcie_intc 1>,
-@@ -1806,7 +1808,6 @@
- 			interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&pmucru PCLK_GPIO0>, <&pmucru DBCLK_GPIO0>;
- 			gpio-controller;
--			gpio-ranges = <&pinctrl 0 0 32>;
- 			#gpio-cells = <2>;
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
-@@ -1818,7 +1819,6 @@
- 			interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cru PCLK_GPIO1>, <&cru DBCLK_GPIO1>;
- 			gpio-controller;
--			gpio-ranges = <&pinctrl 0 32 32>;
- 			#gpio-cells = <2>;
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
-@@ -1830,7 +1830,6 @@
- 			interrupts = <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cru PCLK_GPIO2>, <&cru DBCLK_GPIO2>;
- 			gpio-controller;
--			gpio-ranges = <&pinctrl 0 64 32>;
- 			#gpio-cells = <2>;
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
-@@ -1842,7 +1841,6 @@
- 			interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cru PCLK_GPIO3>, <&cru DBCLK_GPIO3>;
- 			gpio-controller;
--			gpio-ranges = <&pinctrl 0 96 32>;
- 			#gpio-cells = <2>;
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
-@@ -1854,7 +1852,6 @@
- 			interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cru PCLK_GPIO4>, <&cru DBCLK_GPIO4>;
- 			gpio-controller;
--			gpio-ranges = <&pinctrl 0 128 32>;
- 			#gpio-cells = <2>;
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
 -- 
 2.39.2
 
