@@ -128,6 +128,9 @@ main() {
     # disable sshd until after keys are regenerated on first boot
     rm -f "$mountpt/etc/systemd/system/sshd.service"
     rm -f "$mountpt/etc/systemd/system/multi-user.target.wants/ssh.service"
+    rm -f "$mountpt/etc/ssh/ssh_host_"*
+
+    rm -f "$mountpt/etc/machine.id"
 
     # hostname
     echo $hostname > "$mountpt/etc/hostname"
@@ -158,11 +161,10 @@ main() {
 
     print_hdr "installing rootfs expansion script to /etc/rc.local"
     if $make_r5c; then
-        echo "$(script_rc_local_r5c)\n" > "$mountpt/etc/rc.local"
+        install -m 754 files/rc.local_r5c "$mountpt/etc/rc.local"
     else
-        echo "$(script_rc_local_r5s)\n" > "$mountpt/etc/rc.local"
+        install -m 754 files/rc.local_r5s "$mountpt/etc/rc.local"
     fi
-    chmod 754 "$mountpt/etc/rc.local"
 
     print_hdr "creating user account"
     chroot "$mountpt" /usr/sbin/useradd -m $acct_uid -s /bin/bash
@@ -384,140 +386,6 @@ file_locale_cfg() {
 	LC_IDENTIFICATION="C.UTF-8"
 	LC_ALL=
 	EOF
-}
-
-script_rc_local_r5s() {
-    cat <<-EOF2
-	#!/bin/sh
-
-	set -e
-
-	this=\$(realpath \$0)
-	perm=\$(stat -c %a \$this)
-
-	if [ 774 -eq \$perm ]; then
-	    # expand fs
-	    resize2fs \$(findmnt / -o source -n)
-	    rm "\$this"
-	else
-	    macd=\$(xxd -s250 -l6 -p /dev/urandom)
-
-	    # r5s config
-	    echo "[Match]\\nPath=platform-3c0000000.pcie-pci-0000:01:00.0\\n[Link]\\nName=lan1\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-lan1.link
-	    echo "[Match]\\nPath=platform-3c0400000.pcie-pci-0001:01:00.0\\n[Link]\\nName=lan2\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-lan2.link
-	    echo "[Match]\\nPath=platform-fe2a0000.ethernet\\n[Link]\\nName=wan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000002)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-wan0.link
-
-	    cat <<-EOF > /etc/network/interfaces
-		# interfaces(5) file used by ifup(8) and ifdown(8)
-		# Include files from /etc/network/interfaces.d:
-		source /etc/network/interfaces.d/*
-
-		# loopback network interface
-		auto lo
-		iface lo inet loopback
-
-		# lan1 network interface
-		auto lan1
-		iface lan1 inet static
-		    address 192.168.1.1/24
-		    broadcast 192.168.1.255
-
-		# lan2 network interface
-		auto lan2
-		iface lan2 inet static
-		    address 192.168.2.1/24
-		    broadcast 192.168.2.255
-
-		# wan network interface
-		auto wan0
-		iface wan0 inet dhcp
-
-		EOF
-	    fi
-
-	    # regen ssh keys
-	    rm -f /etc/ssh/ssh_host_*
-	    dpkg-reconfigure openssh-server
-	    systemctl enable ssh.service
-
-	    # expand root parition
-	    rp=\$(findmnt / -o source -n)
-	    rpn=\$(echo "\$rp" | grep -o '[[:digit:]]*\$')
-	    rd="/dev/\$(lsblk -no pkname \$rp)"
-	    echo ', +' | sfdisk -f -N \$rpn \$rd
-
-	    # change uuid on partition
-	    uuid=\$(cat /proc/sys/kernel/random/uuid)
-	    sfdisk --part-uuid \$rd \$rpn \$uuid
-
-	    # setup for expand fs
-	    chmod 774 "\$this"
-	    reboot
-	fi
-	EOF2
-}
-
-script_rc_local_r5c() {
-    cat <<-EOF2
-	#!/bin/sh
-
-	set -e
-
-	this=\$(realpath \$0)
-	perm=\$(stat -c %a \$this)
-
-	if [ 774 -eq \$perm ]; then
-	    # expand fs
-	    resize2fs \$(findmnt / -o source -n)
-	    rm "\$this"
-	else
-	    macd=\$(xxd -s250 -l6 -p /dev/urandom)
-
-	    # r5c config
-	    echo "[Match]\\nPath=platform-3c0400000.pcie-pci-0001:01:00.0\\n[Link]\\nName=lan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\lan0.link
-	    echo "[Match]\\nPath=platform-3c0800000.pcie-pci-0002:01:00.0\\n[Link]\\nName=wan0\\nMACAddress=\$(printf '%012x' \$((0x\$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:\$//')" > /etc/systemd/network/10-name-\wan0.link
-
-	    cat <<-EOF > /etc/network/interfaces
-		# interfaces(5) file used by ifup(8) and ifdown(8)
-		# Include files from /etc/network/interfaces.d:
-		source /etc/network/interfaces.d/*
-
-		# loopback network interface
-		auto lo
-		iface lo inet loopback
-
-		# lan network interface
-		auto lan0
-		iface lan0 inet static
-		    address 192.168.1.1/24
-		    broadcast 192.168.1.255
-
-		# wan network interface
-		auto wan0
-		iface wan0 inet dhcp
-
-		EOF
-
-	    # regen ssh keys
-	    rm -f /etc/ssh/ssh_host_*
-	    dpkg-reconfigure openssh-server
-	    systemctl enable ssh.service
-
-	    # expand root parition
-	    rp=\$(findmnt / -o source -n)
-	    rpn=\$(echo "\$rp" | grep -o '[[:digit:]]*\$')
-	    rd="/dev/\$(lsblk -no pkname \$rp)"
-	    echo ', +' | sfdisk -f -N \$rpn \$rd
-
-	    # change uuid on partition
-	    uuid=\$(cat /proc/sys/kernel/random/uuid)
-	    sfdisk --part-uuid \$rd \$rpn \$uuid
-
-	    # setup for expand fs
-	    chmod 774 "\$this"
-	    reboot
-	fi
-	EOF2
 }
 
 script_boot_txt() {
