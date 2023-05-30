@@ -1,0 +1,30 @@
+From e015833d088bf17002e7a485d18b62f110270158 Mon Sep 17 00:00:00 2001
+From: John Clark <inindev@gmail.com>
+Date: Fri, 5 May 2023 23:11:01 -0400
+Subject: [PATCH 17/18] add nvme boot target
+
+Signed-off-by: John Clark <inindev@gmail.com>
+---
+ include/configs/rockchip-common.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/include/configs/rockchip-common.h b/include/configs/rockchip-common.h
+index 18544d75ac..49406b7bfb 100644
+--- a/include/configs/rockchip-common.h
++++ b/include/configs/rockchip-common.h
+@@ -71,10 +71,11 @@
+ #else
+ #define BOOT_TARGET_DEVICES(func) \
+ 	BOOT_TARGET_MMC(func) \
++	BOOT_TARGET_NVME(func) \
+ 	BOOT_TARGET_USB(func) \
+ 	BOOT_TARGET_PXE(func) \
+ 	BOOT_TARGET_DHCP(func)
+-#define BOOT_TARGETS	"mmc1 mmc0 usb pxe dhcp"
++#define BOOT_TARGETS	"mmc1 mmc0 nvme usb pxe dhcp"
+ #endif
+ 
+ #ifdef CONFIG_ARM64
+-- 
+2.39.2
+

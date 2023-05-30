@@ -1,0 +1,41 @@
+From a8122e429d624787e21f89ec2037096b51c68a28 Mon Sep 17 00:00:00 2001
+From: Jonas Karlman <jonas@kwiboo.se>
+Date: Tue, 18 Apr 2023 21:55:18 +0000
+Subject: [PATCH 14/18] rk8xx: add 500 us delay after ldo is enabled
+
+A quick power cycle of a ldo regulator during dwmmc voltage change has
+shown that SD-card is not always recogniced.
+
+Linux driver use an enable_time of 400us for ldo regulators. Apply a
+500us delay when a ldo regulator is enabled to fix possible issues.
+
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+---
+ drivers/power/regulator/rk8xx.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/power/regulator/rk8xx.c b/drivers/power/regulator/rk8xx.c
+index 0ee07ad299..8ac2a707d4 100644
+--- a/drivers/power/regulator/rk8xx.c
++++ b/drivers/power/regulator/rk8xx.c
+@@ -15,6 +15,7 @@
+ #include <power/rk8xx_pmic.h>
+ #include <power/pmic.h>
+ #include <power/regulator.h>
++#include <linux/delay.h>
+ 
+ #ifndef CONFIG_SPL_BUILD
+ #define ENABLE_DRIVER
+@@ -616,6 +617,9 @@ static int _ldo_set_enable(struct udevice *pmic, int ldo, bool enable)
+ 		break;
+ 	}
+ 
++	if (enable)
++		udelay(500);
++
+ 	return ret;
+ }
+ 
+-- 
+2.39.2
+

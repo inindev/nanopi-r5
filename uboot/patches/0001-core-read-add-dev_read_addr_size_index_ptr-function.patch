@@ -1,0 +1,80 @@
+From c569deeb7901c38812694bb0f94857bee9a4c7e3 Mon Sep 17 00:00:00 2001
+From: Jonas Karlman <jonas@kwiboo.se>
+Date: Wed, 17 May 2023 22:53:41 +0000
+Subject: [PATCH 01/18] core: read: add dev_read_addr_size_index_ptr function
+
+Add dev_read_addr_size_index_ptr function with the same functionality as
+dev_read_addr_size_index, but instead a return pointer is given.
+Use map_sysmem() function as cast for the return.
+
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+Reviewed-by: Kever Yang <kever.yang@rock-chips.com>
+---
+ drivers/core/read.c | 11 +++++++++++
+ include/dm/read.h   | 21 +++++++++++++++++++++
+ 2 files changed, 32 insertions(+)
+
+diff --git a/drivers/core/read.c b/drivers/core/read.c
+index e0543bbad5..e525109979 100644
+--- a/drivers/core/read.c
++++ b/drivers/core/read.c
+@@ -140,6 +140,17 @@ fdt_addr_t dev_read_addr_size_index(const struct udevice *dev, int index,
+ 		return devfdt_get_addr_size_index(dev, index, size);
+ }
+ 
++void *dev_read_addr_size_index_ptr(const struct udevice *dev, int index,
++				   fdt_size_t *size)
++{
++	fdt_addr_t addr = dev_read_addr_size_index(dev, index, size);
++
++	if (addr == FDT_ADDR_T_NONE)
++		return NULL;
++
++	return map_sysmem(addr, 0);
++}
++
+ void *dev_remap_addr_index(const struct udevice *dev, int index)
+ {
+ 	fdt_addr_t addr = dev_read_addr_index(dev, index);
+diff --git a/include/dm/read.h b/include/dm/read.h
+index 56ac076c9f..7dd43d61a6 100644
+--- a/include/dm/read.h
++++ b/include/dm/read.h
+@@ -246,6 +246,20 @@ void *dev_read_addr_index_ptr(const struct udevice *dev, int index);
+ fdt_addr_t dev_read_addr_size_index(const struct udevice *dev, int index,
+ 				    fdt_size_t *size);
+ 
++/**
++ * dev_read_addr_size_index_ptr() - Get the indexed reg property of a device
++ *                                  as a pointer
++ *
++ * @dev: Device to read from
++ * @index: the 'reg' property can hold a list of <addr, size> pairs
++ *	   and @index is used to select which one is required
++ * @size: place to put size value (on success)
++ *
++ * Return: pointer or NULL if not found
++ */
++void *dev_read_addr_size_index_ptr(const struct udevice *dev, int index,
++				   fdt_size_t *size);
++
+ /**
+  * dev_remap_addr_index() - Get the indexed reg property of a device
+  *                               as a memory-mapped I/O pointer
+@@ -957,6 +971,13 @@ static inline fdt_addr_t dev_read_addr_size_index(const struct udevice *dev,
+ 	return devfdt_get_addr_size_index(dev, index, size);
+ }
+ 
++static inline void *dev_read_addr_size_index_ptr(const struct udevice *dev,
++						 int index,
++						 fdt_size_t *size)
++{
++	return devfdt_get_addr_size_index_ptr(dev, index, size);
++}
++
+ static inline fdt_addr_t dev_read_addr_name(const struct udevice *dev,
+ 					    const char *name)
+ {
+-- 
+2.39.2
+

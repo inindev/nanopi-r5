@@ -1,0 +1,31 @@
+From a11324ef5783d94e427b21c7ec6cbeaef9d9adbc Mon Sep 17 00:00:00 2001
+From: FUKAUMI Naoki <naoki@radxa.com>
+Date: Sat, 8 Apr 2023 09:33:42 +0000
+Subject: [PATCH 15/18] arm: dts: rk356x: Makefile: sort
+
+sort alphanumerically.
+
+Signed-off-by: FUKAUMI Naoki <naoki@radxa.com>
+Reviewed-by: Kever Yang <kever.yang@rock-chips.com>
+Link: https://patchwork.ozlabs.org/project/uboot/patch/20230408093342.83060-1-naoki@radxa.com/
+---
+ arch/arm/dts/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index c160e884bf..760cff5295 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -165,8 +165,8 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
+ 	rk3399pro-rock-pi-n10.dtb
+ 
+ dtb-$(CONFIG_ROCKCHIP_RK3568) += \
+-	rk3568-evb.dtb \
+ 	rk3566-radxa-cm3-io.dtb \
++	rk3568-evb.dtb \
+ 	rk3568-rock-3a.dtb
+ 
+ dtb-$(CONFIG_ROCKCHIP_RK3588) += \
+-- 
+2.39.2
+

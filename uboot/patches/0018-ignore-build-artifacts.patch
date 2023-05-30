@@ -1,0 +1,34 @@
+From 7097c88d8d469701d81ca11e73fdce76ef981617 Mon Sep 17 00:00:00 2001
+From: John Clark <inindev@gmail.com>
+Date: Tue, 7 Mar 2023 01:47:26 +0000
+Subject: [PATCH 18/18] ignore build artifacts
+
+Signed-off-by: John Clark <inindev@gmail.com>
+---
+ .gitignore | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/.gitignore b/.gitignore
+index 3a4d056edf..27b515736b 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -35,7 +35,7 @@
+ *.tab.[ch]
+ 
+ # Build tree
+-/build-*
++/build*
+ 
+ #
+ # Top-level generic files
+@@ -44,6 +44,7 @@ fit-dtb.blob*
+ /MLO*
+ /SPL*
+ /System.map
++/simple-bin*
+ /u-boot*
+ /boards.cfg
+ /*.log
+-- 
+2.39.2
+
