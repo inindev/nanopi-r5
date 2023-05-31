@@ -1,7 +1,7 @@
-From 5130841ebe821575333239905e3822efb219796e Mon Sep 17 00:00:00 2001
+From 4de09c962a08f03cc01cc3b56e782e5fcedb67d6 Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
 Date: Wed, 17 May 2023 22:53:44 +0000
-Subject: [PATCH 05/18] pci: pcie_dw_rockchip: Hide BARs of the root complex
+Subject: [PATCH 05/11] pci: pcie_dw_rockchip: Hide BARs of the root complex
 
 PCI Autoconfig read the Root Complex BARs and try to claim the entire
 1 GiB memory region on RK3568, leaving no space for any attached device.

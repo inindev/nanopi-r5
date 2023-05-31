@@ -1,11 +1,11 @@
-From d8ae2dad5b866ce50b64555ec4383c64a95eef5a Mon Sep 17 00:00:00 2001
+From 939f9c242c5bd9be38d1680d22e34ee35424332f Mon Sep 17 00:00:00 2001
 From: John Clark <inindev@gmail.com>
 Date: Mon, 29 May 2023 10:58:49 -0400
-Subject: [PATCH 16/18] board: rockchip: add nanopi r5c and r5s
+Subject: [PATCH 09/11] board: rockchip: add nanopi r5c and r5s
 
 Signed-off-by: John Clark <inindev@gmail.com>
 ---
- arch/arm/dts/Makefile                      |   2 +
+ arch/arm/dts/Makefile                      |   4 +-
  arch/arm/dts/rk3568-nanopi-r5c-u-boot.dtsi |   3 +
  arch/arm/dts/rk3568-nanopi-r5c.dts         | 112 ++++
  arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi |  79 +++
@@ -13,7 +13,7 @@ Signed-off-by: John Clark <inindev@gmail.com>
  arch/arm/dts/rk3568-nanopi-r5s.dtsi        | 590 +++++++++++++++++++++
  configs/nanopi-r5c-rk3568_defconfig        |  90 ++++
  configs/nanopi-r5s-rk3568_defconfig        |  90 ++++
- 8 files changed, 1102 insertions(+)
+ 8 files changed, 1103 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm/dts/rk3568-nanopi-r5c-u-boot.dtsi
  create mode 100644 arch/arm/dts/rk3568-nanopi-r5c.dts
  create mode 100644 arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi
@@ -23,13 +23,16 @@ Signed-off-by: John Clark <inindev@gmail.com>
  create mode 100644 configs/nanopi-r5s-rk3568_defconfig
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 760cff5295..625a5418a7 100644
+index c160e884bf..625a5418a7 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -167,6 +167,8 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
+@@ -165,8 +165,10 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
+ 	rk3399pro-rock-pi-n10.dtb
+ 
  dtb-$(CONFIG_ROCKCHIP_RK3568) += \
+-	rk3568-evb.dtb \
  	rk3566-radxa-cm3-io.dtb \
- 	rk3568-evb.dtb \
++	rk3568-evb.dtb \
 +	rk3568-nanopi-r5c.dtb \
 +	rk3568-nanopi-r5s.dtb \
  	rk3568-rock-3a.dtb

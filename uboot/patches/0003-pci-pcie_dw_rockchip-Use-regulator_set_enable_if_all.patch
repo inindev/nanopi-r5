@@ -1,7 +1,7 @@
-From 13556fa632a23eabe2d4b4b253fc66682c0afede Mon Sep 17 00:00:00 2001
+From 9ed3fa17e0371677d281f4069952992ffad397c4 Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
 Date: Wed, 17 May 2023 22:53:42 +0000
-Subject: [PATCH 03/18] pci: pcie_dw_rockchip: Use
+Subject: [PATCH 03/11] pci: pcie_dw_rockchip: Use
  regulator_set_enable_if_allowed
 
 The vpcie3v3 regulator is typically a fixed regulator controlled using

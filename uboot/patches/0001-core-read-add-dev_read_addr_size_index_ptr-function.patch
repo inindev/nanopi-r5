@@ -1,7 +1,7 @@
-From c569deeb7901c38812694bb0f94857bee9a4c7e3 Mon Sep 17 00:00:00 2001
+From 81598873b0867115600479fe43b78bbd8dd175e8 Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
 Date: Wed, 17 May 2023 22:53:41 +0000
-Subject: [PATCH 01/18] core: read: add dev_read_addr_size_index_ptr function
+Subject: [PATCH 01/11] core: read: add dev_read_addr_size_index_ptr function
 
 Add dev_read_addr_size_index_ptr function with the same functionality as
 dev_read_addr_size_index, but instead a return pointer is given.
