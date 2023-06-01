@@ -21,14 +21,14 @@ main() {
     local disable_ipv6=true
     local extra_pkgs='curl, pciutils, sudo, u-boot-tools, unzip, wget, xxd, xz-utils, zip, zstd'
 
-    local make_r5c=false
+    local model='r5s'
     if is_param 'r5c' $@; then
-        make_r5c=true
+        model='r5c'
         media=$(echo $media | sed 's/r5s/r5c/')
     fi
     print_hdr "building media: $media"
 
-    is_param 'clean' $@ && rm -rf cache.* && rm mmc_2g.img* && exit 0
+    is_param 'clean' $@ && rm -rf cache.* && rm "$media"* && exit 0
 
     if [ -f "$media" ]; then
         read -p "file $media exists, overwrite? <y/N> " yn
@@ -57,19 +57,13 @@ main() {
     local lfw=$(download "$cache" 'https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20230210.tar.xz')
     local lfwsha='6e3d9e8d52cffc4ec0dbe8533a8445328e0524a20f159a5b61c2706f983ce38a'
     # device tree & uboot
-    if $make_r5c; then
-        print_hdr "configuring r5c device tree"
-        local dtb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/rk3568-nanopi-r5c.dtb')
-#        local dtb='../dtb/rk3568-nanopi-r5c.dtb'
-    else
-        print_hdr "configuring r5s device tree"
-        local dtb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/rk3568-nanopi-r5s.dtb')
-#        local dtb='../dtb/rk3568-nanopi-r5s.dtb'
-    fi
-    local uboot_spl=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/idbloader.img')
-#    local uboot_spl='../uboot/idbloader.img'
-    local uboot_itb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/u-boot.itb')
-#    local uboot_itb='../uboot/u-boot.itb'
+    print_hdr "configuring $model device tree"
+    local dtb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/rk3568-nanopi-$model.dtb")
+#    local dtb="../dtb/rk3568-nanopi-$model.dtb"
+    local uboot_spl=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/idbloader-$model.img")
+#    local uboot_spl="../uboot/idbloader-$model.img"
+    local uboot_itb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/u-boot-$model.itb")
+#    local uboot_itb="../uboot/u-boot-$model.itb"
 
     if [ "$lfwsha" != $(sha256sum "$lfw" | cut -c1-64) ]; then
         echo "invalid hash for linux firmware: $lfw"
@@ -143,8 +137,7 @@ main() {
     sed -i '/alias.l.=/s/^#*\s*//' "$mountpt/root/.bashrc"
 
     # motd (off by default)
-    is_param 'motdc' $@ && [ -f '../etc/motd-r5c' ] && cp -f '../etc/motd-r5c' "$mountpt/etc/motd"
-    is_param 'motds' $@ && [ -f '../etc/motd-r5s' ] && cp -f '../etc/motd-r5s' "$mountpt/etc/motd"
+    is_param 'motd' $@ && [ -f "../etc/motd-$model" ] && cp -f "../etc/motd-$model" "$mountpt/etc/motd"
 
     # setup /boot
     echo "$(script_boot_txt $disable_ipv6)\n" > "$mountpt/boot/boot.txt"
@@ -160,11 +153,7 @@ main() {
     tar -C "$mountpt/lib/firmware" --strip-components=1 --wildcards -xavf "$lfw" "${lfwn%%.*}/rockchip" "${lfwn%%.*}/rtl_nic"
 
     print_hdr "installing rootfs expansion script to /etc/rc.local"
-    if $make_r5c; then
-        install -m 754 files/rc.local_r5c "$mountpt/etc/rc.local"
-    else
-        install -m 754 files/rc.local_r5s "$mountpt/etc/rc.local"
-    fi
+    install -m 754 files/rc.local_$model "$mountpt/etc/rc.local"
 
     print_hdr "creating user account"
     chroot "$mountpt" /usr/sbin/useradd -m $acct_uid -s /bin/bash
@@ -172,13 +161,8 @@ main() {
     chroot "$mountpt" /usr/bin/passwd -e $acct_uid
     (umask 377 && echo "$acct_uid ALL=(ALL) NOPASSWD: ALL" > "$mountpt/etc/sudoers.d/$acct_uid")
 
-    # when compressing, reduce entropy in free space to enhance compression
-    if $compress; then
-        print_hdr "removing entropy before compression"
-        cat /dev/zero > "$mountpt/tmp/zero.bin" 2> /dev/null || true
-        sync
-        rm -f "$mountpt/tmp/zero.bin"
-    fi
+    # reduce entropy on non-block media
+    [ -b "$media" ] || fstrim -v "$mountpt"
 
     umount "$mountpt"
     rm -rf "$mountpt"
@@ -207,8 +191,7 @@ make_image_file() {
     local filename="$1"
     rm -f "$filename"*
     local size="$(echo "$filename" | sed -rn 's/.*mmc_([[:digit:]]+[m|g])_r5.\.img$/\1/p')"
-    local bytes="$(echo "$size" | sed -e 's/g/ << 30/' -e 's/m/ << 20/')"
-    dd bs=64K count=$(($bytes >> 16)) if=/dev/zero of="$filename" status=progress
+    truncate -s $size "$filename"
 }
 
 parition_media() {
