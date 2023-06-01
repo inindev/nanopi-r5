@@ -48,22 +48,22 @@ main() {
 
     make -C u-boot nanopi-r5s-rk3568_defconfig
     make -C u-boot -j$(nproc) BL31=$atf_file ROCKCHIP_TPL=$tpl_file
-    cp u-boot/idbloader.img idbloader_r5s.img
-    cp u-boot/u-boot.itb u-boot_r5s.itb
+    cp u-boot/idbloader.img idbloader-r5s.img
+    cp u-boot/u-boot.itb u-boot-r5s.itb
 
     make -C u-boot nanopi-r5c-rk3568_defconfig
     make -C u-boot -j$(nproc) BL31=$atf_file ROCKCHIP_TPL=$tpl_file
-    cp u-boot/idbloader.img idbloader_r5c.img
-    cp u-boot/u-boot.itb u-boot_r5c.itb
+    cp u-boot/idbloader.img idbloader-r5c.img
+    cp u-boot/u-boot.itb u-boot-r5c.itb
 
     echo "\n${cya}idbloader and u-boot binaries are now ready${rst}"
     echo "\n${cya}copy nanopi r5c images to media:${rst}"
-    echo "  ${cya}sudo dd bs=4K seek=8 if=idbloader_r5c.img of=/dev/sdX conv=notrunc${rst}"
-    echo "  ${cya}sudo dd bs=4K seek=2048 if=u-boot_r5c.itb of=/dev/sdX conv=notrunc,fsync${rst}"
+    echo "  ${cya}sudo dd bs=4K seek=8 if=idbloader-r5c.img of=/dev/sdX conv=notrunc${rst}"
+    echo "  ${cya}sudo dd bs=4K seek=2048 if=u-boot-r5c.itb of=/dev/sdX conv=notrunc,fsync${rst}"
     echo
     echo "\n${cya}copy nanopi r5s images to media:${rst}"
-    echo "  ${cya}sudo dd bs=4K seek=8 if=idbloader_r5s.img of=/dev/sdX conv=notrunc${rst}"
-    echo "  ${cya}sudo dd bs=4K seek=2048 if=u-boot_r5s.itb of=/dev/sdX conv=notrunc,fsync${rst}"
+    echo "  ${cya}sudo dd bs=4K seek=8 if=idbloader-r5s.img of=/dev/sdX conv=notrunc${rst}"
+    echo "  ${cya}sudo dd bs=4K seek=2048 if=u-boot-r5s.itb of=/dev/sdX conv=notrunc,fsync${rst}"
     echo
 }
 
