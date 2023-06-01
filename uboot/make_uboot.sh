@@ -40,21 +40,22 @@ main() {
         git -C u-boot checkout $utag
     fi
 
-    # outputs: idbloader.img & u-boot.itb
-    rm -f idbloader.img u-boot.itb
+    rm -f idbloader*.img u-boot*.itb
     if [ '_inc' != "_$1" ]; then
         make -C u-boot distclean
     fi
 
-    make -C u-boot nanopi-r5s-rk3568_defconfig
-    make -C u-boot -j$(nproc) BL31=$atf_file ROCKCHIP_TPL=$tpl_file
-    cp u-boot/idbloader.img idbloader-r5s.img
-    cp u-boot/u-boot.itb u-boot-r5s.itb
-
+    # outputs: idbloader-r5c.img & u-boot-r5c.itb
     make -C u-boot nanopi-r5c-rk3568_defconfig
     make -C u-boot -j$(nproc) BL31=$atf_file ROCKCHIP_TPL=$tpl_file
     cp u-boot/idbloader.img idbloader-r5c.img
     cp u-boot/u-boot.itb u-boot-r5c.itb
+
+    # outputs: idbloader-r5s.img & u-boot-r5s.itb
+    make -C u-boot nanopi-r5s-rk3568_defconfig
+    make -C u-boot -j$(nproc) BL31=$atf_file ROCKCHIP_TPL=$tpl_file
+    cp u-boot/idbloader.img idbloader-r5s.img
+    cp u-boot/u-boot.itb u-boot-r5s.itb
 
     echo "\n${cya}idbloader and u-boot binaries are now ready${rst}"
     echo "\n${cya}copy nanopi r5c images to media:${rst}"
