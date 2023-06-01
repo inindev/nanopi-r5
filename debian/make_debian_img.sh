@@ -58,12 +58,12 @@ main() {
     local lfwsha='6e3d9e8d52cffc4ec0dbe8533a8445328e0524a20f159a5b61c2706f983ce38a'
     # device tree & uboot
     print_hdr "configuring $model device tree"
-    local dtb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/rk3568-nanopi-$model.dtb")
-#    local dtb="../dtb/rk3568-nanopi-$model.dtb"
-    local uboot_spl=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/idbloader-$model.img")
-#    local uboot_spl="../uboot/idbloader-$model.img"
-    local uboot_itb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/u-boot-$model.itb")
-#    local uboot_itb="../uboot/u-boot-$model.itb"
+    local dtb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/rk3568-nanopi-${model}.dtb")
+#    local dtb="../dtb/rk3568-nanopi-${model}.dtb"
+    local uboot_spl=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/idbloader-${model}.img")
+#    local uboot_spl="../uboot/idbloader-${model}.img"
+    local uboot_itb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12-rc4/u-boot-${model}.itb")
+#    local uboot_itb="../uboot/u-boot-${model}.itb"
 
     if [ "$lfwsha" != $(sha256sum "$lfw" | cut -c1-64) ]; then
         echo "invalid hash for linux firmware: $lfw"
@@ -108,7 +108,7 @@ main() {
     print_hdr "installing root filesystem from debian.org"
     mkdir "$mountpt/etc"
     echo 'link_in_boot = 1' > "$mountpt/etc/kernel-img.conf"
-    local pkgs="linux-image-arm64, dbus, openssh-server, systemd-timesyncd"
+    local pkgs="linux-image-arm64, dbus, dbus-user-session, openssh-server, systemd-timesyncd"
     pkgs="$pkgs, $extra_pkgs"
     debootstrap --arch arm64 --include "$pkgs" "$deb_dist" "$mountpt" 'https://deb.debian.org/debian/'
 
