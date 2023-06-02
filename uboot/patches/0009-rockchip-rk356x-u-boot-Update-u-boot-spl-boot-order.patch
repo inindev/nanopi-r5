@@ -1,0 +1,26 @@
+From d8efb0a132f33ae3cdd2f643d081ee2cdd3c6882 Mon Sep 17 00:00:00 2001
+From: Jonas Karlman <jonas@kwiboo.se>
+Date: Fri, 12 May 2023 09:12:56 +0000
+Subject: [PATCH 09/12] rockchip: rk356x-u-boot: Update u-boot,spl-boot-order
+
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+---
+ arch/arm/dts/rk356x-u-boot.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/rk356x-u-boot.dtsi b/arch/arm/dts/rk356x-u-boot.dtsi
+index 6eef99e6f7..909afe7a3a 100644
+--- a/arch/arm/dts/rk356x-u-boot.dtsi
++++ b/arch/arm/dts/rk356x-u-boot.dtsi
+@@ -12,7 +12,7 @@
+ 	};
+ 
+ 	chosen {
+-		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc0;
++		u-boot,spl-boot-order = "same-as-spl", &sdmmc0, &sdhci;
+ 	};
+ 
+ 	dmc: dmc {
+-- 
+2.39.2
+

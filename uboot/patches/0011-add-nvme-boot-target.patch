@@ -1,7 +1,7 @@
-From aac49a46340d301e42ec398e70b7c1b7cae07852 Mon Sep 17 00:00:00 2001
+From 2c82e262b2fd7c00bde1c3bf124eb68d2605b18f Mon Sep 17 00:00:00 2001
 From: John Clark <inindev@gmail.com>
 Date: Fri, 5 May 2023 23:11:01 -0400
-Subject: [PATCH 10/11] add nvme boot target
+Subject: [PATCH 11/12] add nvme boot target
 
 Signed-off-by: John Clark <inindev@gmail.com>
 ---
