@@ -14,8 +14,8 @@ If you want to run true up-stream Debian Linux on your ARM64 device, this is the
 
 **1. download the appropriate image**
 ```
-(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc5/nanopi-r5c_bookworm-rc5.img.xz
-(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc5/nanopi-r5s_bookworm-rc5.img.xz
+(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc6/nanopi-r5c_bookworm-rc6.img.xz
+(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc6/nanopi-r5s_bookworm-rc6.img.xz
 ```
 
 <br/>
@@ -39,7 +39,7 @@ brw-rw---- 1 root disk 8, 0 Mar 19 21:08 /dev/sda
 
 **3. in the case above, substitute 'a' for 'X' in the command below (for /dev/sda)**
 ```
-sudo sh -c 'xzcat nanopi-r5s_bookworm-rc5.img.xz > /dev/sdX && sync'
+sudo sh -c 'xzcat nanopi-r5s_bookworm-rc6.img.xz > /dev/sdX && sync'
 ```
 
 #### when the micro sd has finished imaging, eject and use it to boot the nanopi r5c or r5s to finish setup
@@ -110,10 +110,10 @@ Using the steps in the first section above, create a removable MMC card and boot
 
 **2. download the appropriate image to the booted MMC card and image the internal eMMC**
 ```
-(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc5/nanopi-r5c_bookworm-rc5.img.xz
-(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc5/nanopi-r5s_bookworm-rc5.img.xz
+(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc6/nanopi-r5c_bookworm-rc6.img.xz
+(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc6/nanopi-r5s_bookworm-rc6.img.xz
 sudo su
-xzcat nanopi-r5s_bookworm-rc5.img.xz > /dev/mmcblk1
+xzcat nanopi-r5s_bookworm-rc6.img.xz > /dev/mmcblk1
 ```
 
 <br/>
@@ -231,14 +231,14 @@ brw-rw---- 1 root disk 259, 1 May 31 23:56 /dev/nvme0n1p1
 
 Download to a temporary location on the booted mmc:
 ```
-wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc5/nanopi-r5s_bookworm-rc5.img.xz
+wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc6/nanopi-r5s_bookworm-rc6.img.xz
 ```
 
 <br/>
 
 **4. image the nvme device** (as root, ```sudo su```)
 ```
-xzcat nanopi-r5s_bookworm-rc5.img.xz > /dev/nvme0n1
+xzcat nanopi-r5s_bookworm-rc6.img.xz > /dev/nvme0n1
 ```
 
 <br/>
@@ -307,8 +307,8 @@ mkfs.ext4 /dev/mmcblk1p1
 
 **7. download and copy the u-boot bootloader to the internal eMMC**
 ```
-wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc5/idbloader-r5s.img
-wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc5/u-boot-r5s.itb
+wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc6/idbloader-r5s.img
+wget https://github.com/inindev/nanopi-r5/releases/download/v12-rc6/u-boot-r5s.itb
 sudo dd bs=4K seek=8 if=idbloader-r5s.img of=/dev/mmcblk1
 sudo dd bs=4K seek=2048 if=u-boot-r5s.itb of=/dev/mmcblk1
 ```
@@ -451,7 +451,7 @@ The final step is to edit the ```/etc/fstab``` file with the nvme and emmc boot 
 ```
 cd nvme/etc
 nano fstab
-/dev/nvme0n1p1	/		ext4	rw,relatime		0  1
+/dev/nvme0n1p1	/	ext4	rw,relatime		0  1
 /dev/mmcblk1p1	/boot	ext4	rw,relatime		0  0
 ```
 
