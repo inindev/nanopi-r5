@@ -1,7 +1,7 @@
-From 58c7c93646a8ac046d8ab1abbc8849802da5c91e Mon Sep 17 00:00:00 2001
+From a80d0b31cf5df9ec67a45ff2e6a95ef7c53c9a82 Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
 Date: Wed, 17 May 2023 22:53:43 +0000
-Subject: [PATCH 04/12] pci: pcie_dw_rockchip: Speed up link probe
+Subject: [PATCH 04/11] pci: pcie_dw_rockchip: Speed up link probe
 
 Use a similar pattern and delay values as the linux mainline driver to
 speed up failing when nothing is connected.

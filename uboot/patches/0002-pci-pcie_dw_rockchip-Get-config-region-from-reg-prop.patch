@@ -1,7 +1,7 @@
-From 0edf0a6f12aceda1a9655a46c41e9ab11d0ba925 Mon Sep 17 00:00:00 2001
+From 6f72350b507ba24c6c1277680b2079f83ad83905 Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
 Date: Wed, 17 May 2023 22:53:42 +0000
-Subject: [PATCH 02/12] pci: pcie_dw_rockchip: Get config region from reg prop
+Subject: [PATCH 02/11] pci: pcie_dw_rockchip: Get config region from reg prop
 
 Get the config region to use from the reg prop. Also update the
 referenced region index used in comment.

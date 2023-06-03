@@ -1,7 +1,7 @@
-From d8efb0a132f33ae3cdd2f643d081ee2cdd3c6882 Mon Sep 17 00:00:00 2001
+From f7eb31185b0b99cfc5ac8823b78ee242fee9d94a Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
 Date: Fri, 12 May 2023 09:12:56 +0000
-Subject: [PATCH 09/12] rockchip: rk356x-u-boot: Update u-boot,spl-boot-order
+Subject: [PATCH 09/11] rockchip: rk356x-u-boot: Update u-boot,spl-boot-order
 
 Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
 ---
