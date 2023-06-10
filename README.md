@@ -14,8 +14,8 @@ If you want to run true up-stream Debian Linux on your ARM64 device, this is the
 
 **1. download the appropriate image**
 ```
-(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12/nanopi-r5c_bookworm.img.xz
-(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12/nanopi-r5s_bookworm.img.xz
+(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0/nanopi-r5c_bookworm.img.xz
+(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0/nanopi-r5s_bookworm.img.xz
 ```
 
 <br/>
@@ -110,8 +110,8 @@ Using the steps in the first section above, create a removable MMC card and boot
 
 **2. download the appropriate image to the booted MMC card and image the internal eMMC**
 ```
-(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12/nanopi-r5c_bookworm.img.xz
-(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12/nanopi-r5s_bookworm.img.xz
+(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0/nanopi-r5c_bookworm.img.xz
+(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0/nanopi-r5s_bookworm.img.xz
 sudo su
 xzcat nanopi-r5s_bookworm.img.xz > /dev/mmcblk1
 ```
@@ -231,7 +231,7 @@ brw-rw---- 1 root disk 259, 1 May 31 23:56 /dev/nvme0n1p1
 
 Download to a temporary location on the booted mmc:
 ```
-wget https://github.com/inindev/nanopi-r5/releases/download/v12/nanopi-r5s_bookworm.img.xz
+wget https://github.com/inindev/nanopi-r5/releases/download/v12.0/nanopi-r5s_bookworm.img.xz
 ```
 
 <br/>
@@ -307,8 +307,8 @@ mkfs.ext4 /dev/mmcblk1p1
 
 **7. download and copy the u-boot bootloader to the internal eMMC**
 ```
-wget https://github.com/inindev/nanopi-r5/releases/download/v12/idbloader-r5s.img
-wget https://github.com/inindev/nanopi-r5/releases/download/v12/u-boot-r5s.itb
+wget https://github.com/inindev/nanopi-r5/releases/download/v12.0/idbloader-r5s.img
+wget https://github.com/inindev/nanopi-r5/releases/download/v12.0/u-boot-r5s.itb
 sudo dd bs=4K seek=8 if=idbloader-r5s.img of=/dev/mmcblk1
 sudo dd bs=4K seek=2048 if=u-boot-r5s.itb of=/dev/mmcblk1
 ```
