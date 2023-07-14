@@ -6,7 +6,7 @@ this=$(realpath "$0")
 perm=$(stat -c %a "$this")
 if [ 774 -eq $perm ]; then
     # expand fs
-    resize2fs $(findmnt / -o source -n)
+    resize2fs "$(findmnt -no source /)"
     rm -f "$this"
     systemctl stop rc-local.service
 fi
@@ -55,11 +55,16 @@ systemctl enable ssh.service
 dpkg-reconfigure openssh-server
 
 # expand root parition & change uuid
-rp=$(findmnt / -o source -n)
-rpn=$(echo "$rp" | grep -o '[[:digit:]]*$')
-rd=/dev/$(lsblk -no pkname $rp)
-uuid=$(cat /proc/sys/kernel/random/uuid)
-echo "size=+, uuid=$uuid" | sfdisk -f -N $rpn $rd
+rp="$(findmnt -no source /)"
+rpn="$(echo "$rp" | grep -Eo '[[:digit:]]*$')"
+rd="/dev/$(lsblk -no pkname "$rp")"
+uuid="$(cat /proc/sys/kernel/random/uuid)"
+echo "size=+, uuid=$uuid" | sfdisk -f -N "$rpn" "$rd"
+
+# change rootfs uuid
+uuid="$(cat /proc/sys/kernel/random/uuid)"
+echo "changing rootfs uuid: $uuid"
+tune2fs -U "$uuid" "$rp"
 
 # setup to expand fs on reboot
 chmod 774 "$this"
