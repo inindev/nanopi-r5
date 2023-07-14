@@ -191,7 +191,7 @@ make_image_file() {
     local filename="$1"
     rm -f "$filename"*
     local size="$(echo "$filename" | sed -rn 's/.*mmc_([[:digit:]]+[m|g])_r5.\.img$/\1/p')"
-    truncate -s $size "$filename"
+    truncate -s "$size" "$filename"
 }
 
 parition_media() {
@@ -209,21 +209,26 @@ parition_media() {
 
 format_media() {
     local media="$1"
+    local partnum="${2:-1}"
 
     # create ext4 filesystem
     if [ -b "$media" ]; then
-        local part1="/dev/$(lsblk -no kname "$media" | grep '.*p1$')"
-        mkfs.ext4 "$part1" && sync
+        local rdn="$(basename "$media")"
+        local sbpn="$(echo /sys/block/${rdn}/${rdn}*${partnum})"
+        local part="/dev/$(basename "$sbpn")"
+        mkfs.ext4 -L rootfs -vO metadata_csum_seed "$part" && sync
     else
         local lodev="$(losetup -f)"
-        losetup -P "$lodev" "$media" && sync
-        mkfs.ext4 "${lodev}p1" && sync
-        losetup -d "$lodev" && sync
+        losetup -vP "$lodev" "$media" && sync
+        mkfs.ext4 -L rootfs -vO metadata_csum_seed "${lodev}p${partnum}" && sync
+        losetup -vd "$lodev" && sync
     fi
 }
 
+
 mount_media() {
     local media="$1"
+    local partnum="1"
 
     if [ -d "$mountpt" ]; then
         echo "cleaning up mount points..."
@@ -234,11 +239,17 @@ mount_media() {
         mkdir -p "$mountpt"
     fi
 
+    local success_msg
     if [ -b "$media" ]; then
-        local part1="/dev/$(lsblk -no kname "$media" | grep '.*p1$')"
-        mount -n "$part1" "$mountpt"
+        local rdn="$(basename "$media")"
+        local sbpn="$(echo /sys/block/${rdn}/${rdn}*${partnum})"
+        local part="/dev/$(basename "$sbpn")"
+        mount -n "$part" "$mountpt"
+        success_msg="partition ${cya}$part${rst} successfully mounted on ${cya}$mountpt${rst}"
     elif [ -f "$media" ]; then
+        # hard-coded to p1
         mount -n -o loop,offset=16M "$media" "$mountpt"
+        success_msg="media ${cya}$media${rst} partition 1 successfully mounted on ${cya}$mountpt${rst}"
     else
         echo "file not found: $media"
         exit 4
@@ -249,7 +260,7 @@ mount_media() {
         exit 3
     fi
 
-    echo "media ${cya}$media${rst} successfully mounted on ${cya}$mountpt${rst}"
+    echo "$success_msg"
 }
 
 check_mount_only() {
@@ -328,7 +339,7 @@ check_installed() {
 
     if [ ! -z "$todo" ]; then
         echo "this script requires the following packages:${bld}${yel}$todo${rst}"
-        echo "   run: ${bld}${grn}apt update && apt -y install$todo${rst}\n"
+        echo "   run: ${bld}${grn}sudo apt update && sudo apt -y install$todo${rst}\n"
         exit 1
     fi
 }
@@ -456,11 +467,11 @@ h1="${blu}==>${rst} ${bld}"
 
 if [ 0 -ne $(id -u) ]; then
     echo 'this script must be run as root'
-    echo "   run: ${bld}${grn}sudo sh make_debian_img.sh${rst}\n"
+    echo "   run: ${bld}${grn}sudo sh $(basename "$0")${rst}\n"
     exit 9
 fi
 
 cd "$(dirname "$(readlink -f "$0")")"
-check_mount_only $@
-main $@
+check_mount_only "$@"
+main "$@"
 
