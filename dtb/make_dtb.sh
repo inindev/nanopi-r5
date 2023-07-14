@@ -7,74 +7,58 @@ set -e
 #   5: invalid file hash
 
 main() {
-    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.3.7.tar.xz'
-    local lxsha='fe369743996c522a7b473e99dcf8f88847bd5cc88546fd3b7a41d9fe5a5b97a9'
+    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.3.tar.xz'
+    local lxsha='7134ed29360df6f37a26410630283f0592c91a6d2178a9648226d30ddf8c88a1'
 
-    local lf=$(basename $linux)
-    local lv=$(echo $lf | sed -nE 's/linux-(.*)\.tar\..z/\1/p')
+    local lf="$(basename "$linux")"
+    local lv="$(echo "$lf" | sed -nE 's/linux-(.*)\.tar\..z/\1/p')"
 
     if [ '_clean' = "_$1" ]; then
-        rm -f *.dt?
-        rm -f *.dtsi
-        rm -rf linux-$lv
+        rm -f *.dt*
+        rm -rf "linux-$lv"
         echo '\nclean complete\n'
         exit 0
     fi
 
     check_installed 'device-tree-compiler' 'gcc' 'wget' 'xz-utils'
 
-    [ -f $lf ] || wget $linux
+    [ -f "$lf" ] || wget "$linux"
 
-    if [ _$lxsha != _$(sha256sum $lf | cut -c1-64) ]; then
+    if [ "_$lxsha" != _$(sha256sum "$lf" | cut -c1-64) ]; then
         echo "invalid hash for linux source file: $lf"
         exit 5
     fi
 
-    local rkpath=linux-$lv/arch/arm64/boot/dts/rockchip
-    if ! [ -d linux-$lv ]; then
-        tar xavf $lf linux-$lv/include/dt-bindings linux-$lv/include/uapi $rkpath
-        get_for_next $rkpath/rk356x.dtsi
-        get_for_next $rkpath/rk3568.dtsi
-        get_for_next $rkpath/rk3568-nanopi-r5s.dtsi
+    local rkpath="linux-$lv/arch/arm64/boot/dts/rockchip"
+    if ! [ -d "linux-$lv" ]; then
+        tar xavf "$lf" "linux-$lv/include/dt-bindings" "linux-$lv/include/uapi" "$rkpath"
 
-        get_for_next $rkpath/rk3568-nanopi-r5c.dts
-        sed -i '/gpio3 RK_PA3 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-1-100:00:link";' $rkpath/rk3568-nanopi-r5c.dts
-        sed -i '/gpio3 RK_PA4 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-2-100:00:link";' $rkpath/rk3568-nanopi-r5c.dts
+        # lan activity indicators
+        sed -i '/gpio3 RK_PA3 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-1-100:00:link";' "$rkpath/rk3568-nanopi-r5c.dts"
+        sed -i '/gpio3 RK_PA4 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-2-100:00:link";' "$rkpath/rk3568-nanopi-r5c.dts"
 
-        get_for_next $rkpath/rk3568-nanopi-r5s.dts
-        sed -i '/gpio3 RK_PD6 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-0-100:00:link";' $rkpath/rk3568-nanopi-r5s.dts
-        sed -i '/gpio3 RK_PD7 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-1-100:00:link";' $rkpath/rk3568-nanopi-r5s.dts
-        sed -i '/gpio2 RK_PC1 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "stmmac-0:01:link";' $rkpath/rk3568-nanopi-r5s.dts
+        sed -i '/gpio3 RK_PD6 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-0-100:00:link";' "$rkpath/rk3568-nanopi-r5s.dts"
+        sed -i '/gpio3 RK_PD7 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-1-100:00:link";' "$rkpath/rk3568-nanopi-r5s.dts"
+        sed -i '/gpio2 RK_PC1 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "stmmac-0:01:link";' "$rkpath/rk3568-nanopi-r5s.dts"
     fi
 
+    local rkfl='rk356x.dtsi rk3568.dtsi rk3568-pinctrl.dtsi rk3568-nanopi-r5s.dtsi rk3568-nanopi-r5s.dts rk3568-nanopi-r5c.dts rockchip-pinconf.dtsi'
     if [ '_links' = "_$1" ]; then
-        ln -sfv $rkpath/rk356x.dtsi
-        ln -sfv $rkpath/rk3568.dtsi
-        ln -sfv $rkpath/rk3568-pinctrl.dtsi
-        ln -sfv $rkpath/rk3568-nanopi-r5s.dtsi
-        ln -sfv $rkpath/rk3568-nanopi-r5s.dts
-        ln -sfv $rkpath/rk3568-nanopi-r5c.dts
+        for rkf in $rkfl; do
+            ln -sfv "$rkpath/$rkf"
+        done
         echo '\nlinks created\n'
         exit 0
     fi
 
     # build
-    local dt=rk3568-nanopi-r5s
-    gcc -I linux-$lv/include -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp -o ${dt}-top.dts $rkpath/${dt}.dts
-    dtc -@ -I dts -O dtb -o ${dt}.dtb ${dt}-top.dts
-    echo "\n${cya}device tree ready: ${dt}.dtb${rst}\n"
-
-    dt=rk3568-nanopi-r5c
-    gcc -I linux-$lv/include -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp -o ${dt}-top.dts $rkpath/${dt}.dts
-    dtc -@ -I dts -O dtb -o ${dt}.dtb ${dt}-top.dts
-    echo "\n${cya}device tree ready: ${dt}.dtb${rst}\n"
-}
-
-get_for_next() {
-    local filepath=$1
-    local file=$(basename $filepath)
-    local url=https://git.kernel.org/pub/scm/linux/kernel/git/mmind/linux-rockchip.git/plain/arch/arm64/boot/dts/rockchip/$file?h=for-next
-    wget -O $filepath $url
+    local dts='rk3568-nanopi-r5s rk3568-nanopi-r5c'
+    local fldtc='-Wno-interrupt_provider -Wno-unique_unit_address -Wno-unit_address_vs_reg -Wno-avoid_unnecessary_addr_size -Wno-alias_paths -Wno-graph_child_address -Wno-simple_bus_reg'
+    for dt in $dts; do
+        gcc -I "linux-$lv/include" -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp -o "${dt}-top.dts" "$rkpath/${dt}.dts"
+        dtc -I dts -O dtb -b 0 ${fldtc} -o "${dt}.dtb" "${dt}-top.dts"
+        echo "\n${cya}device tree ready: ${dt}.dtb${rst}\n"
+    done
 }
 
 check_installed() {
@@ -100,5 +84,5 @@ mag='\033[35m'
 cya='\033[36m'
 h1="${blu}==>${rst} ${bld}"
 
-main $@
+main "$@"
 
