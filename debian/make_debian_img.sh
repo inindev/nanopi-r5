@@ -18,10 +18,10 @@ main() {
     local hostname='nanopi5-arm64'
     local acct_uid='debian'
     local acct_pass='debian'
-    local disable_ipv6=true
-    local extra_pkgs='curl, pciutils, sudo, u-boot-tools, unzip, wget, xxd, xz-utils, zip, zstd'
+    local disable_ipv6=false
+    local extra_pkgs='curl, pciutils, sudo, git, vim, u-boot-tools, unzip, wget, xxd, xz-utils, zip, zstd'
 
-    local model='r5s'
+    local model='r5c'
     if is_param 'r5c' $@; then
         model='r5c'
         media=$(echo $media | sed 's/r5s/r5c/')
@@ -54,8 +54,8 @@ main() {
     print_hdr "downloading files"
     local cache="cache.$deb_dist"
     # linux firmware
-    local lfw=$(download "$cache" 'https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20230210.tar.xz')
-    local lfwsha='6e3d9e8d52cffc4ec0dbe8533a8445328e0524a20f159a5b61c2706f983ce38a'
+    local lfw=$(download "$cache" 'https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-20230625.tar.xz')
+    local lfwsha='87597111c0d4b71b31e53cb85a92c386921b84c825a402db8c82e0e86015500d'
     # device tree & uboot
     print_hdr "configuring $model device tree"
     local dtb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12.0/rk3568-nanopi-${model}.dtb")
@@ -351,14 +351,14 @@ file_apt_sources() {
 	# For information about how to configure apt package sources,
 	# see the sources.list(5) manual.
 
-	deb http://deb.debian.org/debian $deb_dist main contrib non-free non-free-firmware
-	#deb-src http://deb.debian.org/debian $deb_dist main contrib non-free non-free-firmware
-
-	deb http://deb.debian.org/debian-security $deb_dist-security main contrib non-free non-free-firmware
-	#deb-src http://deb.debian.org/debian-security $deb_dist-security main contrib non-free non-free-firmware
-
-	deb http://deb.debian.org/debian $deb_dist-updates main contrib non-free non-free-firmware
-	#deb-src http://deb.debian.org/debian $deb_dist-updates main contrib non-free non-free-firmware
+	deb http://mirrors.aliyun.com/debian/ bullseye main non-free contrib
+        deb-src http://mirrors.aliyun.com/debian/ bullseye main non-free contrib
+        deb http://mirrors.aliyun.com/debian-security/ bullseye-security main
+        deb-src http://mirrors.aliyun.com/debian-security/ bullseye-security main
+        deb http://mirrors.aliyun.com/debian/ bullseye-updates main non-free contrib
+        deb-src http://mirrors.aliyun.com/debian/ bullseye-updates main non-free contrib
+        deb http://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib
+        deb-src http://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib
 	EOF
 }
 
@@ -383,7 +383,7 @@ file_locale_cfg() {
 }
 
 script_boot_txt() {
-    local no_ipv6="$($1 && echo ' ipv6.disable=1')"
+    local no_ipv6="$($1 && echo ' ipv6.disable=0')"
 
     cat <<-EOF
 	# after modifying, run ./mkscr.sh
