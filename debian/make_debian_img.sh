@@ -19,7 +19,7 @@ main() {
     local acct_uid='debian'
     local acct_pass='debian'
     local disable_ipv6=false
-    local extra_pkgs='curl, pciutils, sudo, git, vim, u-boot-tools, unzip, wget, xxd, xz-utils, zip, zstd'
+    local extra_pkgs='curl, pciutils, sudo, git, vim, u-boot-tools, unzip, wget, xxd, gnupg, bzip2, xz-utils, zip, zstd'
 
     local model='r5c'
     if is_param 'r5c' $@; then
