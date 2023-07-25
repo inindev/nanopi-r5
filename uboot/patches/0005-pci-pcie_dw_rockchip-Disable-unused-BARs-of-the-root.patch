@@ -1,0 +1,47 @@
+From 6ab8f6964ff3270b2b8354e2c3b55535b11ac15b Mon Sep 17 00:00:00 2001
+From: Jon Lin <jon.lin@rock-chips.com>
+Date: Sat, 22 Jul 2023 13:30:20 +0000
+Subject: [PATCH 05/11] pci: pcie_dw_rockchip: Disable unused BARs of the root
+ complex
+
+The Root Complex BARs default to claim the full 1 GiB memory region on
+RK3568, leaving no space for any attached device.
+
+Fix this by disable the unused BAR 0 and BAR 1 of the RC.
+
+Signed-off-by: Jon Lin <jon.lin@rock-chips.com>
+[jonas@kwiboo.se: Move to rk_pcie_configure and use PCI_BASE_ADDRESS_0/1 const]
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+---
+ drivers/pci/pcie_dw_rockchip.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/pci/pcie_dw_rockchip.c b/drivers/pci/pcie_dw_rockchip.c
+index 82a8b9c96e..1a35fae5c3 100644
+--- a/drivers/pci/pcie_dw_rockchip.c
++++ b/drivers/pci/pcie_dw_rockchip.c
+@@ -61,6 +61,8 @@ struct rk_pcie {
+ #define PCIE_CLIENT_DBG_TRANSITION_DATA	0xffff0000
+ #define PCIE_CLIENT_DBF_EN		0xffff0003
+ 
++#define PCIE_TYPE0_HDR_DBI2_OFFSET	0x100000
++
+ static int rk_pcie_read(void __iomem *addr, int size, u32 *val)
+ {
+ 	if ((uintptr_t)addr & (size - 1)) {
+@@ -158,6 +160,12 @@ static void rk_pcie_configure(struct rk_pcie *pci, u32 cap_speed)
+ {
+ 	dw_pcie_dbi_write_enable(&pci->dw, true);
+ 
++	/* Disable BAR 0 and BAR 1 */
++	writel(0, pci->dw.dbi_base + PCIE_TYPE0_HDR_DBI2_OFFSET +
++	       PCI_BASE_ADDRESS_0);
++	writel(0, pci->dw.dbi_base + PCIE_TYPE0_HDR_DBI2_OFFSET +
++	       PCI_BASE_ADDRESS_1);
++
+ 	clrsetbits_le32(pci->dw.dbi_base + PCIE_LINK_CAPABILITY,
+ 			TARGET_LINK_SPEED_MASK, cap_speed);
+ 
+-- 
+2.40.1
+

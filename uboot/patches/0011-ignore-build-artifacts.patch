@@ -1,4 +1,4 @@
-From 8dd56f02c5e050ee81027c1fab5a79cac3667c3d Mon Sep 17 00:00:00 2001
+From 942123967abb4addaeae3b68505621ed0887f6e1 Mon Sep 17 00:00:00 2001
 From: John Clark <inindev@gmail.com>
 Date: Tue, 7 Mar 2023 01:47:26 +0000
 Subject: [PATCH 11/11] ignore build artifacts
@@ -30,5 +30,5 @@ index 3a4d056edf..27b515736b 100644
  /boards.cfg
  /*.log
 -- 
-2.39.2
+2.40.1
 

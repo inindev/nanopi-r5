@@ -1,6 +1,6 @@
-From e04a6b6ad06a7e1b4a08421ae9c8ffa67a9a0e86 Mon Sep 17 00:00:00 2001
+From 2e4e758e65cad5e9646ae1e4e6256dc759f9bbf3 Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
-Date: Wed, 17 May 2023 22:53:46 +0000
+Date: Sat, 22 Jul 2023 13:30:22 +0000
 Subject: [PATCH 07/11] rockchip: clk: clk_rk3568: Add CLK_PCIEPHY2_REF support
 
 Add dummy support for the CLK_PCIEPHY2_REF clock.
@@ -12,7 +12,7 @@ Reviewed-by: Kever Yang <kever.yang@rock-chips.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/clk/rockchip/clk_rk3568.c b/drivers/clk/rockchip/clk_rk3568.c
-index cefc263971..c8e688789e 100644
+index 6bdd96f35b..0df82f5971 100644
 --- a/drivers/clk/rockchip/clk_rk3568.c
 +++ b/drivers/clk/rockchip/clk_rk3568.c
 @@ -427,6 +427,7 @@ static ulong rk3568_pmuclk_set_rate(struct clk *clk, ulong rate)
@@ -24,5 +24,5 @@ index cefc263971..c8e688789e 100644
  	default:
  		return -ENOENT;
 -- 
-2.39.2
+2.40.1
 

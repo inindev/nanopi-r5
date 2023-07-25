@@ -1,11 +1,11 @@
-From b2e8c10ba2b7ec6903cc9d590bf995ae0dc0db21 Mon Sep 17 00:00:00 2001
+From 496cdb2182e216eb4ad66569068f51f5496431ba Mon Sep 17 00:00:00 2001
 From: John Clark <inindev@gmail.com>
 Date: Mon, 29 May 2023 10:58:49 -0400
 Subject: [PATCH 10/11] board: rockchip: add nanopi r5c and r5s
 
 Signed-off-by: John Clark <inindev@gmail.com>
 ---
- arch/arm/dts/Makefile                      |   4 +-
+ arch/arm/dts/Makefile                      |   2 +
  arch/arm/dts/rk3568-nanopi-r5c-u-boot.dtsi |   3 +
  arch/arm/dts/rk3568-nanopi-r5c.dts         | 112 ++++
  arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi |  79 +++
@@ -13,7 +13,7 @@ Signed-off-by: John Clark <inindev@gmail.com>
  arch/arm/dts/rk3568-nanopi-r5s.dtsi        | 590 +++++++++++++++++++++
  configs/nanopi-r5c-rk3568_defconfig        |  90 ++++
  configs/nanopi-r5s-rk3568_defconfig        |  90 ++++
- 8 files changed, 1103 insertions(+), 1 deletion(-)
+ 8 files changed, 1102 insertions(+)
  create mode 100644 arch/arm/dts/rk3568-nanopi-r5c-u-boot.dtsi
  create mode 100644 arch/arm/dts/rk3568-nanopi-r5c.dts
  create mode 100644 arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi
@@ -23,16 +23,13 @@ Signed-off-by: John Clark <inindev@gmail.com>
  create mode 100644 configs/nanopi-r5s-rk3568_defconfig
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index c160e884bf..625a5418a7 100644
+index 480269fa60..507bfb512a 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -165,8 +165,10 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
- 	rk3399pro-rock-pi-n10.dtb
- 
- dtb-$(CONFIG_ROCKCHIP_RK3568) += \
--	rk3568-evb.dtb \
+@@ -169,6 +169,8 @@ dtb-$(CONFIG_ROCKCHIP_RK3568) += \
+ 	rk3566-anbernic-rgxx3.dtb \
  	rk3566-radxa-cm3-io.dtb \
-+	rk3568-evb.dtb \
+ 	rk3568-evb.dtb \
 +	rk3568-nanopi-r5c.dtb \
 +	rk3568-nanopi-r5s.dtb \
  	rk3568-rock-3a.dtb
@@ -49,7 +46,7 @@ index 0000000000..fe5bc6af47
 +#include "rk3568-nanopi-r5s-u-boot.dtsi"
 diff --git a/arch/arm/dts/rk3568-nanopi-r5c.dts b/arch/arm/dts/rk3568-nanopi-r5c.dts
 new file mode 100644
-index 0000000000..f70ca9f047
+index 0000000000..c718b8dbb9
 --- /dev/null
 +++ b/arch/arm/dts/rk3568-nanopi-r5c.dts
 @@ -0,0 +1,112 @@
@@ -1181,5 +1178,5 @@ index 0000000000..e53404e851
 +CONFIG_USB_DWC3=y
 +CONFIG_ERRNO_STR=y
 -- 
-2.39.2
+2.40.1
 

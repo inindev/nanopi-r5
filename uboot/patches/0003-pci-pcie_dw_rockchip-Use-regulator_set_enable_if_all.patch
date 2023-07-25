@@ -1,6 +1,6 @@
-From e733752572b6c56bbba7822bf6754a88a64cf9d6 Mon Sep 17 00:00:00 2001
+From 7aa1599565262c34f568b76d873c16c4f0e4c2a1 Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
-Date: Wed, 17 May 2023 22:53:42 +0000
+Date: Sat, 22 Jul 2023 13:30:18 +0000
 Subject: [PATCH 03/11] pci: pcie_dw_rockchip: Use
  regulator_set_enable_if_allowed
 
@@ -20,10 +20,10 @@ Reviewed-by: Kever Yang <kever.yang@rock-chips.com>
  1 file changed, 7 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/pci/pcie_dw_rockchip.c b/drivers/pci/pcie_dw_rockchip.c
-index f8e4b9a4aa..ac0b24f639 100644
+index 83737e62bc..1b8a1409f6 100644
 --- a/drivers/pci/pcie_dw_rockchip.c
 +++ b/drivers/pci/pcie_dw_rockchip.c
-@@ -287,21 +287,16 @@ static int rockchip_pcie_init_port(struct udevice *dev)
+@@ -288,21 +288,16 @@ static int rockchip_pcie_init_port(struct udevice *dev)
  	struct rk_pcie *priv = dev_get_priv(dev);
  
  	/* Set power and maybe external ref clk input */
@@ -50,7 +50,7 @@ index f8e4b9a4aa..ac0b24f639 100644
  	}
  
  	ret = generic_phy_power_on(&priv->phy);
-@@ -344,6 +339,8 @@ err_power_off_phy:
+@@ -345,6 +340,8 @@ err_power_off_phy:
  	generic_phy_power_off(&priv->phy);
  err_exit_phy:
  	generic_phy_exit(&priv->phy);
@@ -60,5 +60,5 @@ index f8e4b9a4aa..ac0b24f639 100644
  	return ret;
  }
 -- 
-2.39.2
+2.40.1
 

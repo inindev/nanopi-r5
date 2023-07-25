@@ -1,6 +1,6 @@
-From e3af51629b4c4a05adf9725fc2d350f93fd340d3 Mon Sep 17 00:00:00 2001
+From 20c3226c8482b850fae4141dce8b1a109b1ddc17 Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
-Date: Wed, 17 May 2023 22:53:41 +0000
+Date: Sat, 22 Jul 2023 13:30:15 +0000
 Subject: [PATCH 01/11] core: read: add dev_read_addr_size_index_ptr function
 
 Add dev_read_addr_size_index_ptr function with the same functionality as
@@ -15,10 +15,10 @@ Reviewed-by: Kever Yang <kever.yang@rock-chips.com>
  2 files changed, 32 insertions(+)
 
 diff --git a/drivers/core/read.c b/drivers/core/read.c
-index e0543bbad5..e525109979 100644
+index 0289a2edb6..d289d00cf2 100644
 --- a/drivers/core/read.c
 +++ b/drivers/core/read.c
-@@ -140,6 +140,17 @@ fdt_addr_t dev_read_addr_size_index(const struct udevice *dev, int index,
+@@ -150,6 +150,17 @@ fdt_addr_t dev_read_addr_size_index(const struct udevice *dev, int index,
  		return devfdt_get_addr_size_index(dev, index, size);
  }
  
@@ -76,5 +76,5 @@ index 56ac076c9f..7dd43d61a6 100644
  					    const char *name)
  {
 -- 
-2.39.2
+2.40.1
 
