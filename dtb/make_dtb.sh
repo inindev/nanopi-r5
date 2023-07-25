@@ -7,8 +7,8 @@ set -e
 #   5: invalid file hash
 
 main() {
-    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.3.tar.xz'
-    local lxsha='7134ed29360df6f37a26410630283f0592c91a6d2178a9648226d30ddf8c88a1'
+    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.6.tar.xz'
+    local lxsha='e1ecc496efc48aaf25a6607a4b8e52d574d6f67a2b0aa1664087d301d3515ea4'
 
     local lf="$(basename "$linux")"
     local lv="$(echo "$lf" | sed -nE 's/linux-(.*)\.tar\..z/\1/p')"
@@ -42,7 +42,7 @@ main() {
         sed -i '/gpio2 RK_PC1 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "stmmac-0:01:link";' "$rkpath/rk3568-nanopi-r5s.dts"
     fi
 
-    local rkfl='rk356x.dtsi rk3568.dtsi rk3568-pinctrl.dtsi rk3568-nanopi-r5s.dtsi rk3568-nanopi-r5s.dts rk3568-nanopi-r5c.dts rockchip-pinconf.dtsi'
+    local rkf rkfl='rk356x.dtsi rk3568.dtsi rk3568-pinctrl.dtsi rk3568-nanopi-r5s.dtsi rk3568-nanopi-r5s.dts rk3568-nanopi-r5c.dts rockchip-pinconf.dtsi'
     if [ '_links' = "_$1" ]; then
         for rkf in $rkfl; do
             ln -sfv "$rkpath/$rkf"
@@ -52,7 +52,7 @@ main() {
     fi
 
     # build
-    local dts='rk3568-nanopi-r5s rk3568-nanopi-r5c'
+    local dt dts='rk3568-nanopi-r5c rk3568-nanopi-r5s'
     local fldtc='-Wno-interrupt_provider -Wno-unique_unit_address -Wno-unit_address_vs_reg -Wno-avoid_unnecessary_addr_size -Wno-alias_paths -Wno-graph_child_address -Wno-simple_bus_reg'
     for dt in $dts; do
         gcc -I "linux-$lv/include" -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp -o "${dt}-top.dts" "$rkpath/${dt}.dts"
@@ -62,7 +62,7 @@ main() {
 }
 
 check_installed() {
-    local todo
+    local item todo
     for item in "$@"; do
         dpkg -l "$item" 2>/dev/null | grep -q "ii  $item" || todo="$todo $item"
     done
