@@ -1,43 +1,64 @@
 #!/bin/sh
 
-# r5s config
+# Copyright (C) 2023, John Clark <inindev@gmail.com>
 
-this=$(realpath "$0")
-perm=$(stat -c %a "$this")
+set -e
+
+this=$(realpath $0)
+perm=$(stat -c %a $this)
+
 if [ 774 -eq $perm ]; then
     # expand fs
     resize2fs "$(findmnt -no source /)"
-    rm -f "$this"
+    rm "$this"
     systemctl stop rc-local.service
-fi
+else
+    # regen ssh keys
+    dpkg-reconfigure openssh-server
+    systemctl enable ssh.service
 
-macd=$(xxd -s250 -l6 -p /dev/urandom)
+    # expand root parition & change uuid
+    rp="$(findmnt -no source /)"
+    rpn="$(echo "$rp" | grep -Eo '[[:digit:]]*$')"
+    rd="/dev/$(lsblk -no pkname "$rp")"
+    uuid="$(cat /proc/sys/kernel/random/uuid)"
+    echo "size=+, uuid=$uuid" | sfdisk -f -N "$rpn" "$rd"
 
-cat <<-EOF > /etc/systemd/network/10-name-lan1.link
+    # change rootfs uuid
+    uuid="$(cat /proc/sys/kernel/random/uuid)"
+    echo "changing rootfs uuid: $uuid"
+    tune2fs -U "$uuid" "$rp"
+    sed -i "s|$(findmnt -fsno source '/')|UUID=$uuid|" '/etc/fstab'
+    /boot/mk_extlinux
+
+    # generate random mac address
+    macd=$(xxd -s250 -l6 -p /dev/urandom)
+
+    cat <<-EOF > /etc/systemd/network/10-name-lan1.link
 	[Match]
 	Path=platform-3c0000000.pcie-pci-0000:01:00.0
 	[Link]
 	Name=lan1
 	MACAddress=$(printf '%012x' $((0x$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:$//')
-EOF
+	EOF
 
-cat <<-EOF > /etc/systemd/network/10-name-lan2.link
+    cat <<-EOF > /etc/systemd/network/10-name-lan2.link
 	[Match]
 	Path=platform-3c0400000.pcie-pci-0001:01:00.0
 	[Link]
 	Name=lan2
 	MACAddress=$(printf '%012x' $((0x$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:$//')
-EOF
+	EOF
 
-cat <<-EOF > /etc/systemd/network/10-name-wan0.link
+    cat <<-EOF > /etc/systemd/network/10-name-wan0.link
 	[Match]
 	Path=platform-fe2a0000.ethernet
 	[Link]
 	Name=wan0
 	MACAddress=$(printf '%012x' $((0x$macd & 0xfefffffffffc | 0x200000000002)) | sed 's/../&:/g;s/:$//')
-EOF
+	EOF
 
-cat <<-EOF > /etc/network/interfaces
+    cat <<-EOF > /etc/network/interfaces
 	# interfaces(5) file used by ifup(8) and ifdown(8)
 	# Include files from /etc/network/interfaces.d:
 	source /etc/network/interfaces.d/*
@@ -62,25 +83,10 @@ cat <<-EOF > /etc/network/interfaces
 	auto wan0
 	iface wan0 inet dhcp
 
-EOF
+	EOF
 
-# regen ssh keys
-systemctl enable ssh.service
-dpkg-reconfigure openssh-server
-
-# expand root parition & change uuid
-rp="$(findmnt -no source /)"
-rpn="$(echo "$rp" | grep -Eo '[[:digit:]]*$')"
-rd="/dev/$(lsblk -no pkname "$rp")"
-uuid="$(cat /proc/sys/kernel/random/uuid)"
-echo "size=+, uuid=$uuid" | sfdisk -f -N "$rpn" "$rd"
-
-# change rootfs uuid
-uuid="$(cat /proc/sys/kernel/random/uuid)"
-echo "changing rootfs uuid: $uuid"
-tune2fs -U "$uuid" "$rp"
-
-# setup to expand fs on reboot
-chmod 774 "$this"
-reboot
+    # setup for expand fs
+    chmod 774 "$this"
+    reboot
+fi
 

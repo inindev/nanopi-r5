@@ -1,0 +1,78 @@
+#!/bin/sh
+
+# Copyright (C) 2023, John Clark <inindev@gmail.com>
+
+set -e
+
+this=$(realpath $0)
+perm=$(stat -c %a $this)
+
+if [ 774 -eq $perm ]; then
+    # expand fs
+    resize2fs "$(findmnt -no source /)"
+    rm "$this"
+    systemctl stop rc-local.service
+else
+    # regen ssh keys
+    dpkg-reconfigure openssh-server
+    systemctl enable ssh.service
+
+    # expand root parition & change uuid
+    rp="$(findmnt -no source /)"
+    rpn="$(echo "$rp" | grep -Eo '[[:digit:]]*$')"
+    rd="/dev/$(lsblk -no pkname "$rp")"
+    uuid="$(cat /proc/sys/kernel/random/uuid)"
+    echo "size=+, uuid=$uuid" | sfdisk -f -N "$rpn" "$rd"
+
+    # change rootfs uuid
+    uuid="$(cat /proc/sys/kernel/random/uuid)"
+    echo "changing rootfs uuid: $uuid"
+    tune2fs -U "$uuid" "$rp"
+    sed -i "s|$(findmnt -fsno source '/')|UUID=$uuid|" '/etc/fstab'
+    /boot/mk_extlinux
+
+    # generate random mac address
+    macd=$(xxd -s250 -l6 -p /dev/urandom)
+
+    cat <<-EOF > /etc/systemd/network/10-name-lan0.link
+	[Match]
+	Path=platform-3c0400000.pcie-pci-0001:01:00.0
+	[Link]
+	Name=lan0
+	MACAddress=$(printf '%012x' $((0x$macd & 0xfefffffffffc | 0x200000000000)) | sed 's/../&:/g;s/:$//')
+	EOF
+
+    cat <<-EOF > /etc/systemd/network/10-name-wan0.link
+	[Match]
+	Path=platform-3c0800000.pcie-pci-0002:01:00.0
+	[Link]
+	Name=wan0
+	MACAddress=$(printf '%012x' $((0x$macd & 0xfefffffffffc | 0x200000000001)) | sed 's/../&:/g;s/:$//')
+	EOF
+
+    cat <<-EOF > /etc/network/interfaces
+	# interfaces(5) file used by ifup(8) and ifdown(8)
+	# Include files from /etc/network/interfaces.d:
+	source /etc/network/interfaces.d/*
+
+	# loopback network interface
+	auto lo
+	iface lo inet loopback
+
+	# lan network interface
+	auto lan0
+	iface lan0 inet static
+	    address 192.168.1.1/24
+	    broadcast 192.168.1.255
+
+	# wan network interface
+	auto wan0
+	iface wan0 inet dhcp
+
+	EOF
+
+    # setup for expand fs
+    chmod 774 "$this"
+    reboot
+fi
+

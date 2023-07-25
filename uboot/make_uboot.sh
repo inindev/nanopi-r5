@@ -56,14 +56,14 @@ main() {
     make -C u-boot -j$(nproc) BL31="$atf_file" ROCKCHIP_TPL="$tpl_file"
     cp u-boot/idbloader.img idbloader-r5c.img
     cp u-boot/u-boot.itb u-boot-r5c.itb
+    is_param 'cp' "$@" && cp_to_debian 'r5c'
 
     # outputs: idbloader-r5s.img & u-boot-r5s.itb
     make -C u-boot nanopi-r5s-rk3568_defconfig
     make -C u-boot -j$(nproc) BL31="$atf_file" ROCKCHIP_TPL="$tpl_file"
     cp u-boot/idbloader.img idbloader-r5s.img
     cp u-boot/u-boot.itb u-boot-r5s.itb
-
-    is_param 'cp' "$@" && cp_to_debian
+    is_param 'cp' "$@" && cp_to_debian 'r5s'
 
     echo "\n${cya}idbloader and u-boot binaries are now ready${rst}\n"
     echo "${cya}copy nanopi r5c images to media:${rst}"
@@ -77,15 +77,16 @@ main() {
 }
 
 cp_to_debian() {
-    local deb_dist=$(cat "../debian/make_debian_img.sh" | sed -n 's/\s*local deb_dist=.\([[:alpha:]]\+\)./\1/p')
+    local model="$1"
+
+    local deb_dist=$(cat "../debian/nanopi-${model}/make_debian_img.sh" | sed -n 's/\s*local deb_dist=.\([[:alpha:]]\+\)./\1/p')
     [ -z "$deb_dist" ] && return
-    local cdir="../debian/cache.$deb_dist"
-    echo '\ncopying to debian cache...'
+
+    local cdir="../debian/nanopi-${model}/cache.$deb_dist"
+    echo "\ncopying to debian nanopi-${model} cache..."
     sudo mkdir -p "$cdir"
-    sudo cp -v './idbloader-r5c.img' "$cdir"
-    sudo cp -v './u-boot-r5c.itb' "$cdir"
-    sudo cp -v './idbloader-r5s.img' "$cdir"
-    sudo cp -v './u-boot-r5s.itb' "$cdir"
+    sudo cp -v "./idbloader-${model}.img" "$cdir"
+    sudo cp -v "./u-boot-${model}.itb" "$cdir"
 }
 
 check_installed() {

@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+# Copyright (C) 2023, John Clark <inindev@gmail.com>
+
+# kernel post-remove hook: /etc/kernel/postrm.d
+# script to delete the specified dtb file from
+# /boot after a kernel is package removed
+
+version="$1"
+target="/boot/rk3568-nanopi-r5c.dtb-${version}"
+
+# passing the kernel version is required
+if [ -z "${version}" ]; then
+	echo >&2 "E: dtb_rm: ${DPKG_MAINTSCRIPT_PACKAGE:-kernel package} did not pass a version number"
+	exit 2
+fi
+
+echo "I: dtb_rm: cleaning up ${target}"
+rm -f "${target}"
+
