@@ -4,6 +4,7 @@ set -e
 
 # script exit codes:
 #   1: missing utility
+#   6: invalid config
 
 main() {
     local utag='v2023.07.02'
@@ -12,7 +13,7 @@ main() {
 
     # branch name is yyyy.mm
     local branch="$(echo "$utag" | sed -rn 's/.*(20[2-9][3-9]\.[0-1][0-9]).*/\1/p')"
-    echo "branch: $branch"
+    echo "${bld}branch: $branch${rst}"
 
     if is_param 'clean' "$@"; then
         rm -f *.img *.itb
@@ -46,34 +47,41 @@ main() {
         git -C u-boot checkout "$branch"
     fi
 
-    rm -f idbloader.img u-boot.itb
-    if ! is_param 'inc' "$@"; then
+    rm -f idbloader*.img u-boot*.itb
+    local model models='r5c r5s'
+    if is_param 'inc' "$@"; then
+        model=$(cat "u-boot/.config" | sed -rn 's/CONFIG_DEFAULT_DEVICE_TREE=\"rk3568-nanopi-(.*)\"/\1/p')
+        if [ "_$model" != '_r5c' -a "_$model" != '_r5s' ]; then
+            echo "${red}unknown config for incremental build: $model${rst}"
+            exit 6
+        fi
+        echo "\n${bld}incremental build for nanopi-${model}${rst}"
+        models="${model}"
+    else
+        is_param 'r5c' "$@" && ! is_param 'r5s' "$@" && models='r5c'
+        is_param 'r5s' "$@" && ! is_param 'r5c' "$@" && models='r5s'
         make -C u-boot distclean
     fi
 
-    # outputs: idbloader-r5c.img & u-boot-r5c.itb
-    make -C u-boot nanopi-r5c-rk3568_defconfig
-    make -C u-boot -j$(nproc) BL31="$atf_file" ROCKCHIP_TPL="$tpl_file"
-    cp u-boot/idbloader.img idbloader-r5c.img
-    cp u-boot/u-boot.itb u-boot-r5c.itb
-    is_param 'cp' "$@" && cp_to_debian 'r5c'
-
-    # outputs: idbloader-r5s.img & u-boot-r5s.itb
-    make -C u-boot nanopi-r5s-rk3568_defconfig
-    make -C u-boot -j$(nproc) BL31="$atf_file" ROCKCHIP_TPL="$tpl_file"
-    cp u-boot/idbloader.img idbloader-r5s.img
-    cp u-boot/u-boot.itb u-boot-r5s.itb
-    is_param 'cp' "$@" && cp_to_debian 'r5s'
+    for model in $models; do
+        if ! is_param 'inc' "$@"; then
+            echo "\n${bld}configuring nanopi-${model}${rst}"
+            make -C u-boot "nanopi-${model}-rk3568_defconfig"
+        fi
+        echo "\n${bld}building nanopi-${model}${rst}"
+        make -C u-boot -j$(nproc) BL31="$atf_file" ROCKCHIP_TPL="$tpl_file"
+        cp 'u-boot/idbloader.img' "idbloader-${model}.img"
+        cp 'u-boot/u-boot.itb' "u-boot-${model}.itb"
+        is_param 'cp' "$@" && cp_to_debian "${model}"
+    done
 
     echo "\n${cya}idbloader and u-boot binaries are now ready${rst}\n"
-    echo "${cya}copy nanopi r5c images to media:${rst}"
-    echo "  ${cya}sudo dd bs=4K seek=8 if=idbloader-r5c.img of=/dev/sdX conv=notrunc${rst}"
-    echo "  ${cya}sudo dd bs=4K seek=2048 if=u-boot-r5c.itb of=/dev/sdX conv=notrunc,fsync${rst}"
-    echo
-    echo "${cya}copy nanopi r5s images to media:${rst}"
-    echo "  ${cya}sudo dd bs=4K seek=8 if=idbloader-r5s.img of=/dev/sdX conv=notrunc${rst}"
-    echo "  ${cya}sudo dd bs=4K seek=2048 if=u-boot-r5s.itb of=/dev/sdX conv=notrunc,fsync${rst}"
-    echo
+    for model in $models; do
+        echo "${cya}copy nanopi ${model} images to media:${rst}"
+        echo "  ${cya}sudo dd bs=4K seek=8 if=idbloader-${model}.img of=/dev/sdX conv=notrunc${rst}"
+        echo "  ${cya}sudo dd bs=4K seek=2048 if=u-boot-${model}.itb of=/dev/sdX conv=notrunc,fsync${rst}"
+        echo
+    done
 }
 
 cp_to_debian() {
