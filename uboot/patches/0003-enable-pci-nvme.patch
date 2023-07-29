@@ -1,0 +1,62 @@
+From 08edc8a3e60f22df65d00b76db3e803df1b7fa8b Mon Sep 17 00:00:00 2001
+From: John Clark <inindev@gmail.com>
+Date: Sat, 29 Jul 2023 23:19:25 +0000
+Subject: [PATCH 3/4] enable pci / nvme
+
+Signed-off-by: John Clark <inindev@gmail.com>
+---
+ configs/nanopi-r5c-rk3568_defconfig | 1 -
+ configs/nanopi-r5s-rk3568_defconfig | 6 +++++-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/configs/nanopi-r5c-rk3568_defconfig b/configs/nanopi-r5c-rk3568_defconfig
+index 784eed33a6..e49ba51a7b 100644
+--- a/configs/nanopi-r5c-rk3568_defconfig
++++ b/configs/nanopi-r5c-rk3568_defconfig
+@@ -13,7 +13,6 @@ CONFIG_ROCKCHIP_RK3568=y
+ CONFIG_SPL_ROCKCHIP_COMMON_BOARD=y
+ CONFIG_SPL_SERIAL=y
+ CONFIG_SPL_STACK_R_ADDR=0x600000
+-CONFIG_TARGET_EVB_RK3568=y
+ CONFIG_SPL_STACK=0x400000
+ CONFIG_DEBUG_UART_BASE=0xFE660000
+ CONFIG_DEBUG_UART_CLOCK=24000000
+diff --git a/configs/nanopi-r5s-rk3568_defconfig b/configs/nanopi-r5s-rk3568_defconfig
+index 3f79802ffd..22e3926aff 100644
+--- a/configs/nanopi-r5s-rk3568_defconfig
++++ b/configs/nanopi-r5s-rk3568_defconfig
+@@ -13,11 +13,11 @@ CONFIG_ROCKCHIP_RK3568=y
+ CONFIG_SPL_ROCKCHIP_COMMON_BOARD=y
+ CONFIG_SPL_SERIAL=y
+ CONFIG_SPL_STACK_R_ADDR=0x600000
+-CONFIG_TARGET_EVB_RK3568=y
+ CONFIG_SPL_STACK=0x400000
+ CONFIG_DEBUG_UART_BASE=0xFE660000
+ CONFIG_DEBUG_UART_CLOCK=24000000
+ CONFIG_SYS_LOAD_ADDR=0xc00800
++CONFIG_PCI=y
+ CONFIG_DEBUG_UART=y
+ CONFIG_FIT=y
+ CONFIG_FIT_VERBOSE=y
+@@ -40,7 +40,9 @@ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_GPT=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
++CONFIG_CMD_PCI=y
+ CONFIG_CMD_USB=y
++# CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_PMIC=y
+ CONFIG_CMD_REGULATOR=y
+ # CONFIG_SPL_DOS_PARTITION is not set
+@@ -61,6 +63,8 @@ CONFIG_MMC_DW_ROCKCHIP=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_SDMA=y
+ CONFIG_MMC_SDHCI_ROCKCHIP=y
++CONFIG_NVME_PCI=y
++CONFIG_PCIE_DW_ROCKCHIP=y
+ CONFIG_PHY_ROCKCHIP_INNO_USB2=y
+ CONFIG_PHY_ROCKCHIP_NANENG_COMBOPHY=y
+ CONFIG_SPL_PINCTRL=y
+-- 
+2.40.1
+
