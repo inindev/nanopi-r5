@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Copyright (C) 2023, John Clark <inindev@gmail.com>
+
 set -e
 
 # script exit codes:
@@ -7,14 +9,15 @@ set -e
 #   5: invalid file hash
 
 main() {
-    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.6.tar.xz'
-    local lxsha='e1ecc496efc48aaf25a6607a4b8e52d574d6f67a2b0aa1664087d301d3515ea4'
+    local linux='https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.7.tar.xz'
+    local lxsha='de143cb61dcaa756c05f56ff35144316d810615819518a33e34754f064c4a7d8'
 
     local lf="$(basename "$linux")"
     local lv="$(echo "$lf" | sed -nE 's/linux-(.*)\.tar\..z/\1/p')"
 
-    if [ '_clean' = "_$1" ]; then
-        rm -f *.dt*
+    if is_param 'clean' "$@"; then
+        rm -f *.dtb *-top.dts
+        find . -maxdepth 1 -type l -delete
         rm -rf "linux-$lv"
         echo '\nclean complete\n'
         exit 0
@@ -24,7 +27,7 @@ main() {
 
     [ -f "$lf" ] || wget "$linux"
 
-    if [ "_$lxsha" != _$(sha256sum "$lf" | cut -c1-64) ]; then
+    if [ "_$lxsha" != "_$(sha256sum "$lf" | cut -c1-64)" ]; then
         echo "invalid hash for linux source file: $lf"
         exit 5
     fi
@@ -33,17 +36,14 @@ main() {
     if ! [ -d "linux-$lv" ]; then
         tar xavf "$lf" "linux-$lv/include/dt-bindings" "linux-$lv/include/uapi" "$rkpath"
 
-        # lan activity indicators
-        sed -i '/gpio3 RK_PA3 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-1-100:00:link";' "$rkpath/rk3568-nanopi-r5c.dts"
-        sed -i '/gpio3 RK_PA4 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-2-100:00:link";' "$rkpath/rk3568-nanopi-r5c.dts"
-
-        sed -i '/gpio3 RK_PD6 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-0-100:00:link";' "$rkpath/rk3568-nanopi-r5s.dts"
-        sed -i '/gpio3 RK_PD7 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "r8169-1-100:00:link";' "$rkpath/rk3568-nanopi-r5s.dts"
-        sed -i '/gpio2 RK_PC1 GPIO_ACTIVE_HIGH/a \\t\t\tlinux,default-trigger = "stmmac-0:01:link";' "$rkpath/rk3568-nanopi-r5s.dts"
+        local patch patches="$(find patches -maxdepth 1 -name '*.patch' 2>/dev/null || true)"
+        for patch in $patches; do
+            patch -p1 -d "linux-$lv" -i "../$patch"
+        done
     fi
 
-    local rkf rkfl='rk356x.dtsi rk3568.dtsi rk3568-pinctrl.dtsi rk3568-nanopi-r5s.dtsi rk3568-nanopi-r5s.dts rk3568-nanopi-r5c.dts rockchip-pinconf.dtsi'
-    if [ '_links' = "_$1" ]; then
+    if is_param 'links' "$@"; then
+        local rkf rkfl='rk3568-nanopi-r5s.dts rk3568-nanopi-r5c.dts rk3568-nanopi-r5s.dtsi rk3568.dtsi rk356x.dtsi rk3568-pinctrl.dtsi rockchip-pinconf.dtsi'
         for rkf in $rkfl; do
             ln -sfv "$rkpath/$rkf"
         done
@@ -57,10 +57,35 @@ main() {
     for dt in $dts; do
         gcc -I "linux-$lv/include" -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp -o "${dt}-top.dts" "$rkpath/${dt}.dts"
         dtc -I dts -O dtb -b 0 ${fldtc} -o "${dt}.dtb" "${dt}-top.dts"
+        is_param 'cp' "$@" && cp_to_debian "${dt}.dtb" "${dt#*-}"
         echo "\n${cya}device tree ready: ${dt}.dtb${rst}\n"
     done
 }
 
+cp_to_debian() {
+    local target="$1"
+    local dir="$2"
+    local deb_dist=$(cat "../debian/$dir/make_debian_img.sh" | sed -n 's/\s*local deb_dist=.\([[:alpha:]]\+\)./\1/p')
+    [ -z "$deb_dist" ] && return
+    local cdir="../debian/$dir/cache.$deb_dist"
+    echo '\ncopying to debian cache...'
+    sudo mkdir -p "$cdir"
+    sudo cp -v "$target" "$cdir"
+}
+
+is_param() {
+    local item match
+    for item in "$@"; do
+        if [ -z "$match" ]; then
+            match="$item"
+        elif [ "$match" = "$item" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+# check if debian package is installed
 check_installed() {
     local item todo
     for item in "$@"; do
@@ -74,6 +99,11 @@ check_installed() {
     fi
 }
 
+print_hdr() {
+    local msg="$1"
+    echo "\n${h1}$msg...${rst}"
+}
+
 rst='\033[m'
 bld='\033[1m'
 red='\033[31m'
@@ -84,5 +114,6 @@ mag='\033[35m'
 cya='\033[36m'
 h1="${blu}==>${rst} ${bld}"
 
+cd "$(dirname "$(readlink -f "$0")")"
 main "$@"
 

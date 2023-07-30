@@ -1,0 +1,62 @@
+From 519a9352538c13327a7537faae8d3e0b8e885a18 Mon Sep 17 00:00:00 2001
+From: John Clark <inindev@gmail.com>
+Date: Sun, 30 Jul 2023 23:34:31 +0000
+Subject: [PATCH] add led triggers
+
+Signed-off-by: John Clark <inindev@gmail.com>
+---
+ arch/arm64/boot/dts/rockchip/rk3568-nanopi-r5c.dts | 2 ++
+ arch/arm64/boot/dts/rockchip/rk3568-nanopi-r5s.dts | 3 +++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3568-nanopi-r5c.dts b/arch/arm64/boot/dts/rockchip/rk3568-nanopi-r5c.dts
+index c718b8d..5853a3c 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3568-nanopi-r5c.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3568-nanopi-r5c.dts
+@@ -35,6 +35,7 @@
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_LAN;
+ 			gpios = <&gpio3 RK_PA3 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "r8169-1-100:00:link";
+ 		};
+ 
+ 		power_led: led-power {
+@@ -48,6 +49,7 @@
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_WAN;
+ 			gpios = <&gpio3 RK_PA4 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "r8169-2-100:00:link";
+ 		};
+ 
+ 		led-wlan {
+diff --git a/arch/arm64/boot/dts/rockchip/rk3568-nanopi-r5s.dts b/arch/arm64/boot/dts/rockchip/rk3568-nanopi-r5s.dts
+index b6ad832..6c6fbd8 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3568-nanopi-r5s.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3568-nanopi-r5s.dts
+@@ -27,6 +27,7 @@
+ 			function = LED_FUNCTION_LAN;
+ 			function-enumerator = <1>;
+ 			gpios = <&gpio3 RK_PD6 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "r8169-0-100:00:link";
+ 		};
+ 
+ 		led-lan2 {
+@@ -34,6 +35,7 @@
+ 			function = LED_FUNCTION_LAN;
+ 			function-enumerator = <2>;
+ 			gpios = <&gpio3 RK_PD7 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "r8169-1-100:00:link";
+ 		};
+ 
+ 		power_led: led-power {
+@@ -47,6 +49,7 @@
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_WAN;
+ 			gpios = <&gpio2 RK_PC1 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "stmmac-0:01:link";
+ 		};
+ 	};
+ };
+-- 
+2.40.1
+
