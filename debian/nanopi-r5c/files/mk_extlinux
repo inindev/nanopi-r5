@@ -4,10 +4,10 @@
 
 set -e
 
-EXTL_MENU_ENABLE='auto'   # true, false, auto
-EXTL_MENU_ITEMS=2         # max kernels in menu
-EXTL_MENU_TIMEOUT=3       # timeout in seconds
-EXLT_CMD_LINE='ro rootwait ipv6.disable=1'
+EXTL_MENU_ENABLE='auto'      # true, false, auto
+EXTL_MENU_ITEMS=2            # max kernels in menu
+EXTL_MENU_TIMEOUT=3          # timeout in seconds
+EXLT_CMD_LINE='ro rootwait'  # optional: ipv6.disable=1
 
 
 # import release info
