@@ -455,7 +455,7 @@ if [ 0 -ne $(id -u) ]; then
     exit 9
 fi
 
-cd "$(dirname "$(readlink -f "$0")")"
+cd "$(dirname "$(realpath "$0")")"
 check_mount_only "$@"
 main "$@"
 
