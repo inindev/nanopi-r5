@@ -1,0 +1,33 @@
+From 6566c27aad5a6e3d57cfafe1434e022aa106ebac Mon Sep 17 00:00:00 2001
+From: Simon Glass <sjg@chromium.org>
+Date: Wed, 26 Jul 2023 21:01:25 -0600
+Subject: [PATCH 7/8] bootstd: Init the size before reading extlinux file
+
+The implementation in extlinux_pxe_getfile() does not pass a valid size
+to bootmeth_read_file(), so this can fail if the uninited value happens to
+be too small.
+
+Fix this.
+
+Signed-off-by: Simon Glass <sjg@chromium.org>
+---
+ boot/bootmeth_pxe.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/boot/bootmeth_pxe.c b/boot/bootmeth_pxe.c
+index ce986bd260..8d489a11aa 100644
+--- a/boot/bootmeth_pxe.c
++++ b/boot/bootmeth_pxe.c
+@@ -31,6 +31,9 @@ static int extlinux_pxe_getfile(struct pxe_context *ctx, const char *file_path,
+ 	int ret;
+ 
+ 	addr = simple_strtoul(file_addr, NULL, 16);
++
++	/* Allow up to 1GB */
++	*sizep = 1 << 30;
+ 	ret = bootmeth_read_file(info->dev, info->bflow, file_path, addr,
+ 				 sizep);
+ 	if (ret)
+-- 
+2.40.1
+

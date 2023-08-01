@@ -139,6 +139,10 @@ cherry_pick() {
     # https://github.com/u-boot/u-boot/commit/583a82d5e2702f2c8aadcd75d416d6e45dd5188a
     git -C u-boot cherry-pick 583a82d5e2702f2c8aadcd75d416d6e45dd5188a
 
+    # rockchip: rk3568-rock-3a: Enable PCIe and NVMe support
+    # https://github.com/u-boot/u-boot/commit/a76aa6ffa6cd25eed282147f6e31b9c09272f930
+    git -C u-boot cherry-pick a76aa6ffa6cd25eed282147f6e31b9c09272f930
+
     # rockchip: rk356x: Update PCIe config, IO and memory regions
     # https://github.com/u-boot/u-boot/commit/062b712999869bdd7d6283ab8eed50e5999ac88a
     git -C u-boot cherry-pick 062b712999869bdd7d6283ab8eed50e5999ac88a
@@ -150,6 +154,50 @@ cherry_pick() {
     # cmd: ini: Fix build warning
     # https://github.com/u-boot/u-boot/commit/8c1bb04b5699ce74ad727d4513e1a40a58c9c628
     git -C u-boot cherry-pick 8c1bb04b5699ce74ad727d4513e1a40a58c9c628
+
+    # board: rockchip: Add Hardkernel ODROID-M1
+    # https://github.com/u-boot/u-boot/commit/94da929b933668c4b9ece7d56a2a2bb5543198c9
+    git -C u-boot cherry-pick 94da929b933668c4b9ece7d56a2a2bb5543198c9
+
+    # Revert "arm: dts: rockchip: radxa-cm3-io, rock-3a: enable regulators for usb"
+    # https://github.com/u-boot/u-boot/commit/bec51f3fb316b5a5ccedd7deb2e58ae6d7443cfa
+    git -C u-boot cherry-pick bec51f3fb316b5a5ccedd7deb2e58ae6d7443cfa
+
+    # usb: dwc3-generic: Return early when there is no child node
+    # https://github.com/u-boot/u-boot/commit/4412a2bf0b674d7438821531a0a19bbcd4b80eda
+    git -C u-boot cherry-pick 4412a2bf0b674d7438821531a0a19bbcd4b80eda
+
+    # usb: dwc3-generic: Relax unsupported dr_mode check
+    # https://github.com/u-boot/u-boot/commit/6913c30516022f86104c9fbe315499e43eee4ed6
+    git -C u-boot cherry-pick 6913c30516022f86104c9fbe315499e43eee4ed6
+
+    # usb: dwc3-generic: Add rk3568 support
+    # https://github.com/u-boot/u-boot/commit/caaeac88466f4152bd126e2342765a4b740955ae
+    git -C u-boot cherry-pick caaeac88466f4152bd126e2342765a4b740955ae
+
+    # rockchip: rk3568: Use dwc3-generic driver
+    # https://github.com/u-boot/u-boot/commit/f8a2d1c108da37fd5202d717c3e428e3dfc12f01
+    git -C u-boot cherry-pick f8a2d1c108da37fd5202d717c3e428e3dfc12f01
+
+    # rockchip: rk356x: Sync dtsi from linux v6.4
+    # https://github.com/u-boot/u-boot/commit/0e3480c1f72f18f80690f8012404eacb67a61151
+    git -C u-boot cherry-pick 0e3480c1f72f18f80690f8012404eacb67a61151
+
+    # rockchip: rk356x-u-boot: Add bootph-all to common pinctrl nodes
+    # https://github.com/u-boot/u-boot/commit/a3ef37a08df3c6aa463ad794e1f788d8a24b129c
+    git -C u-boot cherry-pick a3ef37a08df3c6aa463ad794e1f788d8a24b129c
+
+    # rockchip: rk356x-u-boot: Use relaxed u-boot,spl-boot-order
+    # https://github.com/u-boot/u-boot/commit/f40dcc7d1e74ff5aa5f709918e26cb31277dcea0
+    git -C u-boot cherry-pick f40dcc7d1e74ff5aa5f709918e26cb31277dcea0
+
+    # rockchip: rk3568-rock-3a: Fix SPI Flash alias
+    # https://github.com/u-boot/u-boot/commit/52f6b96d27c8aabca697ac395e86a3481f1c53b7
+    git -C u-boot cherry-pick 52f6b96d27c8aabca697ac395e86a3481f1c53b7
+
+    # power: regulator: rk8xx: Add 500us delay after LDO regulator is enabled
+    # https://github.com/u-boot/u-boot/commit/fea7a29cc8d86a0bbcb4bcf740d47924839b1f81
+    git -C u-boot cherry-pick fea7a29cc8d86a0bbcb4bcf740d47924839b1f81
 }
 
 cp_to_debian() {
