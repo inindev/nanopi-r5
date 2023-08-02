@@ -1,7 +1,7 @@
-From 3f4ad683d2059aedbe6a71184b8154172ecd0c2b Mon Sep 17 00:00:00 2001
+From e5781c814320fc69e7a93b5290f05541472c1e41 Mon Sep 17 00:00:00 2001
 From: Simon Glass <sjg@chromium.org>
 Date: Wed, 26 Jul 2023 21:01:24 -0600
-Subject: [PATCH 6/8] bootstd: Init the size before reading the devicetree
+Subject: [PATCH 05/14] bootstd: Init the size before reading the devicetree
 
 The implementation in distro_efi_try_bootflow_files() does not pass a
 valid size to bootmeth_common_read_file(), so this can fail if the

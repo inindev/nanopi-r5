@@ -1,7 +1,7 @@
-From db7aad2228b6edefddbdc6a6a007228a165a30aa Mon Sep 17 00:00:00 2001
+From 2fd436d9cd2373beb5c2e7e3a8fa86d51e728738 Mon Sep 17 00:00:00 2001
 From: Simon Glass <sjg@chromium.org>
 Date: Wed, 26 Jul 2023 21:01:21 -0600
-Subject: [PATCH 3/8] bootflow: Export setup_fs()
+Subject: [PATCH 02/14] bootflow: Export setup_fs()
 
 This function is used in some bootmeth implementations. Export it.
 

@@ -1,7 +1,8 @@
-From 4ddffb37d72d598d92c96e1c1007d848c7a5f9db Mon Sep 17 00:00:00 2001
+From 9873f94fe81973ff14b271556904a8e16c06884a Mon Sep 17 00:00:00 2001
 From: Simon Glass <sjg@chromium.org>
 Date: Wed, 26 Jul 2023 21:01:22 -0600
-Subject: [PATCH 4/8] bootstd: Use a function to detect network in EFI bootmeth
+Subject: [PATCH 03/14] bootstd: Use a function to detect network in EFI
+ bootmeth
 
 This checks for a network-based bootflow in two places, one of which is
 less than ideal. Move the correct test into a function and use it in both

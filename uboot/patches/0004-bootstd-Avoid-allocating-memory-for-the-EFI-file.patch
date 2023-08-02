@@ -1,7 +1,7 @@
-From e80924f0c106f41b656b56ef12e991416932a37d Mon Sep 17 00:00:00 2001
+From 856a6620eda88844196e06815d9179321bbf90bf Mon Sep 17 00:00:00 2001
 From: Simon Glass <sjg@chromium.org>
 Date: Wed, 26 Jul 2023 21:01:23 -0600
-Subject: [PATCH 5/8] bootstd: Avoid allocating memory for the EFI file
+Subject: [PATCH 04/14] bootstd: Avoid allocating memory for the EFI file
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

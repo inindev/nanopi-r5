@@ -1,31 +1,30 @@
-From 2308ab75d263bef5282b0cda1ada5e5a9d9ee135 Mon Sep 17 00:00:00 2001
+From ad01fb4f8a5c29c7638941619052a4fc6b8961df Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
-Date: Mon, 3 Jul 2023 19:38:26 +0000
-Subject: [PATCH 2/8] fixup: rockchip: rk3568: Add support for FriendlyARM
- NanoPi R5C
+Date: Mon, 3 Jul 2023 20:39:52 +0000
+Subject: [PATCH 08/14] fixup: rockchip: rk3568: Add support for FriendlyARM
+ NanoPi R5S
 
 ---
- arch/arm/dts/rk3568-nanopi-r5c.dts  |  2 +-
- configs/nanopi-r5c-rk3568_defconfig | 14 ++++++++++----
- 2 files changed, 11 insertions(+), 5 deletions(-)
+ arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi |  1 -
+ configs/nanopi-r5s-rk3568_defconfig        | 19 +++++++++++++------
+ 2 files changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/dts/rk3568-nanopi-r5c.dts b/arch/arm/dts/rk3568-nanopi-r5c.dts
-index f70ca9f047..c718b8dbb9 100644
---- a/arch/arm/dts/rk3568-nanopi-r5c.dts
-+++ b/arch/arm/dts/rk3568-nanopi-r5c.dts
-@@ -106,7 +106,7 @@
- 
- 	rockchip-key {
- 		reset_button_pin: reset-button-pin {
--			rockchip,pins = <4 RK_PA0 RK_FUNC_GPIO &pcfg_pull_up>;
-+			rockchip,pins = <0 RK_PB7 RK_FUNC_GPIO &pcfg_pull_up>;
- 		};
+diff --git a/arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi b/arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi
+index 0ecca85b20..b170db40c8 100644
+--- a/arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi
++++ b/arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi
+@@ -11,7 +11,6 @@
+ / {
+ 	chosen {
+ 		stdout-path = &uart2;
+-		u-boot,spl-boot-order = "same-as-spl", &sdmmc0, &sdhci;
  	};
  };
-diff --git a/configs/nanopi-r5c-rk3568_defconfig b/configs/nanopi-r5c-rk3568_defconfig
-index 201b21ad77..5a620aa70b 100644
---- a/configs/nanopi-r5c-rk3568_defconfig
-+++ b/configs/nanopi-r5c-rk3568_defconfig
+ 
+diff --git a/configs/nanopi-r5s-rk3568_defconfig b/configs/nanopi-r5s-rk3568_defconfig
+index 67b2843070..c278ce083d 100644
+--- a/configs/nanopi-r5s-rk3568_defconfig
++++ b/configs/nanopi-r5s-rk3568_defconfig
 @@ -1,5 +1,6 @@
  CONFIG_ARM=y
  CONFIG_SKIP_LOWLEVEL_INIT=y
@@ -44,7 +43,7 @@ index 201b21ad77..5a620aa70b 100644
 +CONFIG_SPL_FIT_SIGNATURE=y
  CONFIG_SPL_LOAD_FIT=y
 +CONFIG_LEGACY_IMAGE_FORMAT=y
- CONFIG_DEFAULT_FDT_FILE="rockchip/rk3568-nanopi-r5c.dtb"
+ CONFIG_DEFAULT_FDT_FILE="rockchip/rk3568-nanopi-r5s.dtb"
  # CONFIG_DISPLAY_CPUINFO is not set
  CONFIG_DISPLAY_BOARDINFO_LATE=y
 @@ -37,14 +41,16 @@ CONFIG_CMD_GPIO=y
@@ -65,21 +64,33 @@ index 201b21ad77..5a620aa70b 100644
  CONFIG_SPL_REGMAP=y
  CONFIG_SPL_SYSCON=y
  CONFIG_SPL_CLK=y
-@@ -57,10 +63,11 @@ CONFIG_MMC_DW_ROCKCHIP=y
+@@ -52,19 +58,21 @@ CONFIG_ROCKCHIP_GPIO=y
+ CONFIG_SYS_I2C_ROCKCHIP=y
+ CONFIG_MISC=y
+ CONFIG_SUPPORT_EMMC_RPMB=y
++CONFIG_MMC_HS200_SUPPORT=y
++CONFIG_SPL_MMC_HS200_SUPPORT=y
+ CONFIG_MMC_DW=y
+ CONFIG_MMC_DW_ROCKCHIP=y
  CONFIG_MMC_SDHCI=y
  CONFIG_MMC_SDHCI_SDMA=y
  CONFIG_MMC_SDHCI_ROCKCHIP=y
 -CONFIG_ETH_DESIGNWARE=y
 -CONFIG_GMAC_ROCKCHIP=y
 +CONFIG_RTL8169=y
++CONFIG_NVME_PCI=y
 +CONFIG_PCIE_DW_ROCKCHIP=y
  CONFIG_PHY_ROCKCHIP_INNO_USB2=y
  CONFIG_PHY_ROCKCHIP_NANENG_COMBOPHY=y
+-CONFIG_POWER_DOMAIN=y
 +CONFIG_SPL_PINCTRL=y
- CONFIG_POWER_DOMAIN=y
  CONFIG_DM_PMIC=y
  CONFIG_PMIC_RK8XX=y
-@@ -72,7 +79,6 @@ CONFIG_BAUDRATE=1500000
+-CONFIG_SPL_DM_REGULATOR_FIXED=y
+ CONFIG_REGULATOR_RK8XX=y
+ CONFIG_PWM_ROCKCHIP=y
+ CONFIG_SPL_RAM=y
+@@ -72,7 +80,6 @@ CONFIG_BAUDRATE=1500000
  CONFIG_DEBUG_UART_SHIFT=2
  CONFIG_SYS_NS16550_MEM32=y
  CONFIG_SYSRESET=y

@@ -1,7 +1,7 @@
-From 6566c27aad5a6e3d57cfafe1434e022aa106ebac Mon Sep 17 00:00:00 2001
+From 9a51a96db9031dbbd30950fbf393c89e52dca9d6 Mon Sep 17 00:00:00 2001
 From: Simon Glass <sjg@chromium.org>
 Date: Wed, 26 Jul 2023 21:01:25 -0600
-Subject: [PATCH 7/8] bootstd: Init the size before reading extlinux file
+Subject: [PATCH 06/14] bootstd: Init the size before reading extlinux file
 
 The implementation in extlinux_pxe_getfile() does not pass a valid size
 to bootmeth_read_file(), so this can fail if the uninited value happens to
