@@ -1,7 +1,7 @@
-From ad01fb4f8a5c29c7638941619052a4fc6b8961df Mon Sep 17 00:00:00 2001
+From 9bbb5bc3c0320371a87aeeb1ddc5f6a3a249a264 Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
 Date: Mon, 3 Jul 2023 20:39:52 +0000
-Subject: [PATCH 08/14] fixup: rockchip: rk3568: Add support for FriendlyARM
+Subject: [PATCH 3/9] fixup: rockchip: rk3568: Add support for FriendlyARM
  NanoPi R5S
 
 ---

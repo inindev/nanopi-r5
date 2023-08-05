@@ -1,8 +1,8 @@
-From 399d5627be47302104363aa9c80e87fee4c32071 Mon Sep 17 00:00:00 2001
+From 9bc4d2fcc70864cb557d173bbe9d1ad49a4903b9 Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
 Date: Tue, 1 Aug 2023 11:46:54 +0000
-Subject: [PATCH 09/14] pci: pcie_dw_rockchip: Configure number of lanes and
- link width speed
+Subject: [PATCH 4/9] pci: pcie_dw_rockchip: Configure number of lanes and link
+ width speed
 
 Set number of lanes and link width speed control register based on the
 num-lanes property.

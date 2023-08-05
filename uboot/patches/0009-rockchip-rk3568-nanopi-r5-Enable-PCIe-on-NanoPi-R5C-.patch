@@ -1,8 +1,8 @@
-From 1147a9fa1342cbea6780ac14fb44e3f11e0c412e Mon Sep 17 00:00:00 2001
+From 883821b313c3234fbc507e5a5fb560e971315ff9 Mon Sep 17 00:00:00 2001
 From: Jonas Karlman <jonas@kwiboo.se>
 Date: Tue, 1 Aug 2023 11:46:55 +0000
-Subject: [PATCH 14/14] rockchip: rk3568-nanopi-r5: Enable PCIe on NanoPi R5C
- and R5S
+Subject: [PATCH 9/9] rockchip: rk3568-nanopi-r5: Enable PCIe on NanoPi R5C and
+ R5S
 
 Enable missing PCIe Kconfig options now that PCIe bifurcation is fixed
 to make use of the two on-board RTL8125B and the M.2 slot on NanoPi R5C

@@ -198,6 +198,26 @@ cherry_pick() {
     # power: regulator: rk8xx: Add 500us delay after LDO regulator is enabled
     # https://github.com/u-boot/u-boot/commit/fea7a29cc8d86a0bbcb4bcf740d47924839b1f81
     git -C u-boot cherry-pick fea7a29cc8d86a0bbcb4bcf740d47924839b1f81
+
+    # bootflow: Export setup_fs()
+    # https://github.com/u-boot/u-boot/commit/0c0c82b5177e9afb3a248da4d004f3dc48975c91
+    git -C u-boot cherry-pick 0c0c82b5177e9afb3a248da4d004f3dc48975c91
+
+    # bootstd: Use a function to detect network in EFI bootmeth
+    # https://github.com/u-boot/u-boot/commit/146242cc998ed6e002831d4ff409189353e1960a
+    git -C u-boot cherry-pick 146242cc998ed6e002831d4ff409189353e1960a
+
+    # bootstd: Avoid allocating memory for the EFI file
+    # https://github.com/u-boot/u-boot/commit/6a8c2f9781cede2a7cb2b95ee6310cd53b1c20e2
+    git -C u-boot cherry-pick 6a8c2f9781cede2a7cb2b95ee6310cd53b1c20e2
+
+    # bootstd: Init the size before reading the devicetree
+    # https://github.com/u-boot/u-boot/commit/2984d21a28f812c9c1fd2243cc72796f69a61585
+    git -C u-boot cherry-pick 2984d21a28f812c9c1fd2243cc72796f69a61585
+
+    # bootstd: Init the size before reading extlinux file
+    # https://github.com/u-boot/u-boot/commit/11158aef8939bb6e54361e4dae3809a9cbe78cff
+    git -C u-boot cherry-pick 11158aef8939bb6e54361e4dae3809a9cbe78cff
 }
 
 cp_to_debian() {
