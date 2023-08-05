@@ -61,13 +61,13 @@ main() {
     [ "$lfwsha" = $(sha256sum "$lfw" | cut -c1-64) ] || { echo "invalid hash for $lfw"; exit 5; }
 
     # u-boot
-    local uboot_spl=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12.0/idbloader-r5s.img')
+    local uboot_spl=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12.0.1/idbloader-r5s.img')
     [ -f "$uboot_spl" ] || { echo "unable to fetch $uboot_spl"; exit 4; }
-    local uboot_itb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12.0/u-boot-r5s.itb')
+    local uboot_itb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12.0.1/u-boot-r5s.itb')
     [ -f "$uboot_itb" ] || { echo "unable to fetch: $uboot_itb"; exit 4; }
 
     # dtb
-    local dtb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12.0/rk3568-nanopi-r5s.dtb")
+    local dtb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12.0.1/rk3568-nanopi-r5s.dtb")
     [ -f "$dtb" ] || { echo "unable to fetch $dtb"; exit 4; }
 
     # setup media
