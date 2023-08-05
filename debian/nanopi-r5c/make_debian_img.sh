@@ -31,7 +31,7 @@ main() {
         exit 0
     fi
 
-    check_installed 'wget' 'xz-utils'
+    check_installed 'debootstrap' 'wget' 'xz-utils'
 
     if [ -f "$media" ]; then
         read -p "file $media exists, overwrite? <y/N> " yn
