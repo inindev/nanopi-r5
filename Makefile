@@ -20,7 +20,8 @@ uboot:
 	sh uboot/make_uboot.sh cp
 
 clean:
-	sudo sh debian/make_debian_img.sh clean
+	sudo sh debian/nanopi-r5c/make_debian_img.sh clean
+	sudo sh debian/nanopi-r5s/make_debian_img.sh clean
 	sh dtb/make_dtb.sh clean
 	sh uboot/make_uboot.sh clean
 
