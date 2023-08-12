@@ -7,8 +7,8 @@
 # after a new kernel is package installed
 
 version="$1"
-source1="/usr/lib/linux-image-${version}/rockchip/rk3568-nanopi-r5c.dtb"
-source2='/boot/rk3568-nanopi-r5c.dtb'
+source1='/boot/rk3568-nanopi-r5c.dtb'
+source2="/usr/lib/linux-image-${version}/rockchip/rk3568-nanopi-r5c.dtb"
 target="/boot/rk3568-nanopi-r5c.dtb-${version}"
 
 # passing the kernel version is required
@@ -17,12 +17,12 @@ if [ -z "${version}" ]; then
 	exit 2
 fi
 
-if [ -f "${source1}" ]; then
-	echo "I: dtb_cp: installing ${source1} to ${target}"
-	install -m 644 "${source1}" "${target}"
-elif [ -f "${source2}" ]; then
+if [ -e "${source1}" ]; then
 	echo -n "I: dtb_cp: symlink "
-	ln -sfv "$(basename "${source2}")" "${target}"
+	ln -sfv "$(basename "${source1}")" "${target}"
+elif [ -e "${source2}" ]; then
+	echo "I: dtb_cp: installing ${source2} to ${target}"
+	install -vm 644 "${source2}" "${target}"
 else
 	echo >&2 "E: dtb_cp: neither ${source1} nor ${source2} found"
 	exit 3
