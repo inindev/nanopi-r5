@@ -1,5 +1,6 @@
 *._*
 .DS_Store
+distfiles
 debian/*/cache*
 debian/*/*.img
 debian/*/*.img.xz
