@@ -3,7 +3,7 @@
 
 This stock Debian ARM64 Linux image is built directly from official packages using the Debian [Debootstrap](https://wiki.debian.org/Debootstrap) utility, see: https://github.com/inindev/nanopi-r5/blob/main/debian/nanopi-r5c/make_debian_img.sh#L126
 
-Being an unmodified Debian build, patches are directory available from the Debian repos using the stock **apt** package manager, see: https://github.com/inindev/nanopi-r5/blob/main/debian/nanopi-r5c/make_debian_img.sh#L358
+Being an unmodified Debian build, patches are directory available from the Debian repos using the stock **apt** package manager, see: https://github.com/inindev/nanopi-r5/blob/main/debian/nanopi-r5c/make_debian_img.sh#L355-L365
 
 If you want to run true up-stream Debian Linux on your ARM64 device, this is the way to do it.
 
@@ -14,8 +14,8 @@ If you want to run true up-stream Debian Linux on your ARM64 device, this is the
 
 **1. download the appropriate image**
 ```
-(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.2/nanopi-r5c_bookworm-1202.img.xz
-(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.2/nanopi-r5s_bookworm-1202.img.xz
+(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.3/nanopi-r5c_bookworm-1203.img.xz
+(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.3/nanopi-r5s_bookworm-1203.img.xz
 ```
 
 <br/>
@@ -39,7 +39,7 @@ brw-rw---- 1 root disk 8, 0 Mar 19 21:08 /dev/sda
 
 **3. in the case above, substitute 'a' for 'X' in the command below (for /dev/sda)**
 ```
-sudo sh -c 'xzcat nanopi-r5s_bookworm-1202.img.xz > /dev/sdX && sync'
+sudo sh -c 'xzcat nanopi-r5s_bookworm-1203.img.xz > /dev/sdX && sync'
 ```
 
 #### when the micro sd has finished imaging, eject and use it to boot the nanopi r5c or r5s to finish setup
@@ -110,10 +110,10 @@ Using the steps in the first section above, create a removable MMC card and boot
 
 **2. download the appropriate image to the booted MMC card and image the internal eMMC**
 ```
-(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.2/nanopi-r5c_bookworm-1202.img.xz
-(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.2/nanopi-r5s_bookworm-1202.img.xz
+(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.3/nanopi-r5c_bookworm-1203.img.xz
+(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.3/nanopi-r5s_bookworm-1203.img.xz
 sudo su
-xzcat nanopi-r5s_bookworm-1202.img.xz > /dev/mmcblk1
+xzcat nanopi-r5s_bookworm-1203.img.xz > /dev/mmcblk1
 ```
 
 <br/>
@@ -125,7 +125,7 @@ Note: Once booted, ```sudo apt update``` then ```sudo apt upgrade``` to get the 
 <br/>
 
 ---
-### booting from internal NVMe
+### booting from internal NVMe _(r5s only)_
 
 <br/>
 
@@ -139,12 +139,11 @@ Using the steps in the first section above, create a removable MMC card and boot
 
 <br/>
 
-**2. download the appropriate image to the booted MMC card and image the internal NVMe**
+**2. download the image to the booted MMC card and image the internal NVMe**
 ```
-(R5C) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.2/nanopi-r5c_bookworm-1202.img.xz
-(R5S) wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.2/nanopi-r5s_bookworm-1202.img.xz
+wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.3/nanopi-r5s_bookworm-1203.img.xz
 sudo su
-xzcat nanopi-r5s_bookworm-1202.img.xz > /dev/nvme0n1
+xzcat nanopi-r5s_bookworm-1203.img.xz > /dev/nvme0n1
 ```
 
 <br/>
@@ -153,8 +152,8 @@ xzcat nanopi-r5s_bookworm-1202.img.xz > /dev/nvme0n1
 
 The last step is to prepare the internal eMMC to host u-boot. The eMMC must not contain a bootable partition or it will be preferred for boot over the internal NVMe. Start by downloading the two u-boot files:
 ```
-wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.2/idbloader-r5s.img
-wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.2/u-boot-r5s.itb
+wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.3/idbloader-r5s.img
+wget https://github.com/inindev/nanopi-r5/releases/download/v12.0.3/u-boot-r5s.itb
 ```
 
 Erase the internal eMMC (the device is actually ```/dev/mmcblk1``` but X is placed where 1 belongs to prevent a copy paste mistake)
@@ -181,9 +180,7 @@ Note: Once booted, ```sudo apt update``` then ```sudo apt upgrade``` to get the 
 
 <br/>
 
-The build script builds native arm64 binaries and thus needs to be run from an arm64 device such as a raspberry pi4 running 
-a 64 bit arm linux. The initial build of this project used a debian arm64 odroid m1, but now uses a nanopi r5s running 
-stock debian bookworm arm64.
+The build script builds native arm64 binaries and thus needs to be run from an arm64 device such as a raspberry pi4 running a 64 bit arm linux. The initial build of this project used a debian arm64 odroid m1, but now uses a nanopi r5s running stock debian bookworm arm64.
 
 <br/>
 
