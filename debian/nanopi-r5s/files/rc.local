@@ -13,6 +13,10 @@ if [ 774 -eq $perm ]; then
     rm "$this"
     systemctl stop rc-local.service
 else
+    # regen machine-id
+    rm -f /etc/machine-id
+    dbus-uuidgen --ensure=/etc/machine-id
+
     # regen ssh keys
     dpkg-reconfigure openssh-server
     systemctl enable ssh.service
