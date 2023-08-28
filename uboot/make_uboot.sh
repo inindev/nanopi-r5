@@ -11,8 +11,8 @@ main() {
     local atf_file='../rkbin/rk3568_bl31_v1.28.elf'
     local tpl_file='../rkbin/rk3568_ddr_1560MHz_v1.15.bin'
 
-    # branch name is yyyy.mm
-    local branch="$(echo "$utag" | sed -rn 's/.*(20[2-9][3-9]\.[0-1][0-9]).*/\1/p')"
+    # branch name is yyyy.mm[-rc]
+    local branch="$(echo "$utag" | grep -Po '\d{4}\.\d{2}(.*-rc\d)*')"
     echo "${bld}branch: $branch${rst}"
 
     if is_param 'clean' "$@"; then
