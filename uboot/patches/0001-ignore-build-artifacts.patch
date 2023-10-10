@@ -1,15 +1,15 @@
-From c79b03d7448b370fe2eb6a9c5fb67bc9505de728 Mon Sep 17 00:00:00 2001
+From 1ab1a698b18bb0da8ba71612db6497f418a55ce1 Mon Sep 17 00:00:00 2001
 From: John Clark <inindev@gmail.com>
 Date: Tue, 7 Mar 2023 01:47:26 +0000
-Subject: [PATCH 1/9] ignore build artifacts
+Subject: [PATCH] ignore build artifacts
 
 Signed-off-by: John Clark <inindev@gmail.com>
 ---
- .gitignore | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .gitignore | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/.gitignore b/.gitignore
-index 3a4d056edf..27b515736b 100644
+index 002f95de4f..47f06f14c7 100644
 --- a/.gitignore
 +++ b/.gitignore
 @@ -35,7 +35,7 @@
@@ -21,14 +21,26 @@ index 3a4d056edf..27b515736b 100644
  
  #
  # Top-level generic files
-@@ -44,6 +44,7 @@ fit-dtb.blob*
+@@ -44,6 +44,9 @@ fit-dtb.blob*
  /MLO*
  /SPL*
  /System.map
++/mkimage-in-simple-bin*
 +/simple-bin*
++/tools/generated
  /u-boot*
  /boards.cfg
  /*.log
+@@ -65,7 +68,8 @@ fit-dtb.blob*
+ #
+ # Generated include files
+ #
+-/include/config/
++include/autoconf.mk*
++/include/config*
+ /include/generated/
+ 
+ # stgit generated dirs
 -- 
-2.40.1
+2.42.0
 
