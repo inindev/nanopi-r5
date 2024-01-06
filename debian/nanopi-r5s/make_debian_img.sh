@@ -106,7 +106,13 @@ main() {
     mkdir -p "$mountpt/usr/lib/firmware"
     local lfwn=$(basename "$lfw")
     local lfwbn="${lfwn%%.*}"
-    tar -C "$mountpt/usr/lib/firmware" --strip-components=1 --wildcards -xavf "$lfw" "$lfwbn/rockchip" "$lfwbn/rtl_nic"
+    tar -C "$mountpt/usr/lib/firmware" --strip-components=1 --wildcards -xavf "$lfw" \
+        "$lfwbn/rockchip" \
+        "$lfwbn/rtl_bt" \
+        "$lfwbn/rtl_nic" \
+        "$lfwbn/rtlwifi" \
+        "$lfwbn/rtw88" \
+        "$lfwbn/rtw89"
 
     # install device tree
     install -vm 644 "$dtb" "$mountpt/boot"
