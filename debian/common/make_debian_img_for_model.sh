@@ -11,13 +11,15 @@ set -e
 #   4: missing file
 #   5: invalid file hash
 #   9: superuser required
+#   10: board model not supported
 
 main() {
+    local model="$1"; shift
     # file media is sized with the number between 'mmc_' and '.img'
     #   use 'm' for 1024^2 and 'g' for 1024^3
     local media='mmc_2g.img' # or block device '/dev/sdX'
     local deb_dist='bookworm'
-    local hostname='nanopi-r5s-arm64'
+    local hostname="nanopi-${model}-arm64"
     local acct_uid='debian'
     local acct_pass='debian'
     local extra_pkgs='curl, pciutils, sudo, unzip, wget, xxd, xz-utils, zip, zstd'
@@ -61,13 +63,13 @@ main() {
     [ "$lfwsha" = $(sha256sum "$lfw" | cut -c1-64) ] || { echo "invalid hash for $lfw"; exit 5; }
 
     # u-boot
-    local uboot_spl=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12.0.1/idbloader-r5s.img')
+    local uboot_spl=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12.0.1/idbloader-${model}.img")
     [ -f "$uboot_spl" ] || { echo "unable to fetch $uboot_spl"; exit 4; }
-    local uboot_itb=$(download "$cache" 'https://github.com/inindev/nanopi-r5/releases/download/v12.0.1/u-boot-r5s.itb')
+    local uboot_itb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12.0.1/u-boot-${model}.itb")
     [ -f "$uboot_itb" ] || { echo "unable to fetch: $uboot_itb"; exit 4; }
 
     # dtb
-    local dtb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12.0.1/rk3568-nanopi-r5s.dtb")
+    local dtb=$(download "$cache" "https://github.com/inindev/nanopi-r5/releases/download/v12.0.1/rk3568-nanopi-${model}.dtb")
     [ -f "$dtb" ] || { echo "unable to fetch $dtb"; exit 4; }
 
     # setup media
@@ -96,9 +98,14 @@ main() {
     echo "$(file_fstab $uuid)\n" > "$mountpt/etc/fstab"
 
     # setup extlinux boot
-    install -Dvm 754 'files/dtb_cp' "$mountpt/etc/kernel/postinst.d/dtb_cp"
-    install -Dvm 754 'files/dtb_rm' "$mountpt/etc/kernel/postrm.d/dtb_rm"
-    install -Dvm 754 'files/mk_extlinux' "$mountpt/boot/mk_extlinux"
+    for dst in "/etc/kernel/postinst.d/dtb_cp" \
+               "/etc/kernel/postrm.d/dtb_rm" \
+               "/boot/mk_extlinux"
+    do
+        src=$(basename "${dst}")
+        install -Dvm 754 "../common/files/${src}" "${mountpt}${dst}"
+        sed -i -e "s/MODEL/${model}/g" "${mountpt}${dst}"
+    done
     ln -svf '../../../boot/mk_extlinux' "$mountpt/etc/kernel/postinst.d/update_extlinux"
     ln -svf '../../../boot/mk_extlinux' "$mountpt/etc/kernel/postrm.d/update_extlinux"
 
@@ -150,7 +157,7 @@ main() {
     sed -i '/alias.l.=/s/^#*\s*//' "$mountpt/root/.bashrc"
 
     # motd (off by default)
-    is_param 'motd' "$@" && [ -f '../etc/motd-r5s' ] && cp -f '../etc/motd-r5s' "$mountpt/etc"
+    is_param 'motd' "$@" && [ -f "../etc/motd-${model}" ] && cp -f "../etc/motd-${model}" "$mountpt/etc"
 
     # hostname
     echo $hostname > "$mountpt/etc/hostname"
@@ -324,6 +331,14 @@ check_mount_only() {
     exit 0
 }
 
+check_specified_model() {
+    if [ "$1" != "r5c" -a "$1" != "r5s" ]
+    then
+        echo "first argument must be r5c or r5s"
+        exit 10
+    fi
+}
+
 # ensure inner mount points get cleaned up
 on_exit() {
     if mountpoint -q "$mountpt"; then
@@ -457,11 +472,10 @@ h1="${blu}==>${rst} ${bld}"
 
 if [ 0 -ne $(id -u) ]; then
     echo 'this script must be run as root'
-    echo "   run: ${bld}${grn}sudo sh $(basename "$0")${rst}\n"
     exit 9
 fi
 
-cd "$(dirname "$(realpath "$0")")"
+model="$1"; shift
+check_specified_model "${model}"
 check_mount_only "$@"
-main "$@"
-
+main "${model}" "$@"
