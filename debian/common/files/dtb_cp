@@ -7,9 +7,9 @@
 # after a new kernel is package installed
 
 version="$1"
-source1='/boot/rk3568-nanopi-r5s.dtb'
-source2="/usr/lib/linux-image-${version}/rockchip/rk3568-nanopi-r5s.dtb"
-target="/boot/rk3568-nanopi-r5s.dtb-${version}"
+source1='/boot/rk3568-nanopi-MODEL.dtb'
+source2="/usr/lib/linux-image-${version}/rockchip/rk3568-nanopi-MODEL.dtb"
+target="/boot/rk3568-nanopi-MODEL.dtb-${version}"
 
 # passing the kernel version is required
 if [ -z "${version}" ]; then

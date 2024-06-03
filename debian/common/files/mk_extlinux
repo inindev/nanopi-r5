@@ -56,7 +56,7 @@ gen_menu_item() {
     echo "\tmenu label ${PRETTY_NAME} ${kver}"
     echo "\tlinux ${boot_dir}/vmlinuz-${kver}"
     echo "\tinitrd ${boot_dir}/initrd.img-${kver}"
-    echo "\tfdt ${boot_dir}/rk3568-nanopi-r5c.dtb-${kver}"
+    echo "\tfdt ${boot_dir}/rk3568-nanopi-MODEL.dtb-${kver}"
     echo "\tappend ${prms}"
 }
 
