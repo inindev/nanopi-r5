@@ -1,9 +1,9 @@
 # nanopi-r5
 #### *Stock Debian ARM64 Linux for the NanoPi R5C & R5S*
 
-This stock Debian ARM64 Linux image is built directly from official packages using the Debian [Debootstrap](https://wiki.debian.org/Debootstrap) utility, see: https://github.com/inindev/nanopi-r5/blob/main/debian/nanopi-r5c/make_debian_img.sh#L126
+This stock Debian ARM64 Linux image is built directly from official packages using the Debian [Debootstrap](https://wiki.debian.org/Debootstrap) utility, see file `steps/install_rootfs_1st_stage.sh`.
 
-Being an unmodified Debian build, patches are directory available from the Debian repos using the stock **apt** package manager, see: https://github.com/inindev/nanopi-r5/blob/main/debian/nanopi-r5c/make_debian_img.sh#L355-L365
+Being an unmodified Debian build, patches are directly available from the Debian repos using the stock **apt** package manager, see function `file_apt_sources()` in file `steps/finalize_rootfs.sh`.
 
 If you want to run true up-stream Debian Linux on your ARM64 device, this is the way to do it.
 
@@ -180,7 +180,8 @@ Note: Once booted, ```sudo apt update``` then ```sudo apt upgrade``` to get the 
 
 <br/>
 
-The build script builds native arm64 binaries and thus needs to be run from an arm64 device such as a raspberry pi4 running a 64 bit arm linux. The initial build of this project used a debian arm64 odroid m1, but now uses a nanopi r5s running stock debian bookworm arm64.
+The build script uses docker and qemu to build an image compatible with arm64 devices,
+even if you run it on a standard x86 machine.
 
 <br/>
 
@@ -198,7 +199,7 @@ cd nanopi-r5
 (R5S) cd debian/nanopi-r5s
 sudo sh make_debian_img.sh
 ```
-* note: edit the build script to change various options: ```nano make_debian_img.sh```
+* note: edit the script at `debian/env.sh` to change various options: ```nano ../env.sh```
 
 <br/>
 

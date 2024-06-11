@@ -1,7 +1,12 @@
 ## stock debian bookworm linux for the nanopi r5c & r5s
 
-<i>Note: This script is intended to be run from a 64 bit arm device such as an odroid m1 or a raspberry pi4.</i>
-
+<i>
+Note: This script is intended to be run:
+* on a Debian machine
+* with docker.io package installed
+* with qemu-user-static package installed (unless the machine has an ARM64 cpu)
+* by a user allowed to use docker (sudo usermod -a -G docker USER)
+</i>
 <br/>
 
 **build debian bookworm using debootstrap**
@@ -29,7 +34,7 @@ pass: debian
 
 <br/>
 
-**multiple build options are available by editing make_debian_img.sh**
+**multiple build options are available by editing debian/env.sh**
 ```
 media='mmc_2g.img' # or block device '/dev/sdX'
 deb_dist='bookworm'
