@@ -39,6 +39,7 @@ format_partition_file() {
     local partition_file="$1"
     local root_dir="${2}"
     local uuid="$(cat fs.uuid)"
+    apt -y install e2fsprogs
     mkfs.ext4 \
         -L rootfs -U "$uuid" -vO metadata_csum_seed \
         -d "$root_dir" \

@@ -1,5 +1,5 @@
 # -- 1st stage: builder_A, run with host arch
-FROM debian:bookworm as builder_A
+FROM debian:trixie as builder_A
 ARG MODEL
 ARG KERNEL_FW_URL
 ARG KERNEL_FW_SHA256
@@ -33,7 +33,7 @@ RUN rm -rf env.sh tools.sh steps    # cleanup
 RUN rm -rf /var/cache/* /var/lib/apt/lists/*   # discard the cache
 
 # -- 3rd stage: builder_B, run with host arch
-FROM debian:bookworm as builder_B
+FROM debian:trixie as builder_B
 ARG MODEL
 ARG PARAMS
 ARG RELEASE_URL

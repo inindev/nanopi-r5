@@ -3,7 +3,7 @@
 # file media is sized with the number between 'mmc_' and '.img'
 #   use 'm' for 1024^2 and 'g' for 1024^3
 media='mmc_2g.img' # or block device '/dev/sdX'
-deb_dist='bookworm'
+deb_dist='trixie'
 acct_uid='debian'
 acct_pass='debian'
 extra_pkgs='curl, pciutils, sudo, unzip, wget, xxd, xz-utils, zip, zstd'
